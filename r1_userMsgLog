@@ -1,0 +1,46 @@
+Message sent to: ¶»¤Bea	Sender: ¶»¤Carter	Passed to: ¶»¤p1	Time sent: ¶»¤2019-12-31T13:22:40.576	Message body: ¶»¤Test
+Message received from: ¶»¤Carter	Recipient: ¶»¤Bea	Delivered by: ¶»¤p1	Time received: ¶»¤2019-12-31T13:22:40.576	Message body: ¶»¤Test
+Message received in local router from external user: ¶»¤u2	Recipient: ¶»¤u1	Time sent: ¶»¤2020-01-06T12:34:54.207	Message body: ¶»¤hi
+Message received from: ¶»¤u2	Recipient: ¶»¤u1	Delivered by: ¶»¤p1	Time received: ¶»¤2020-01-06T12:34:54.207	Message body: ¶»¤hi
+Message received in local router from external user: ¶»¤u2	Recipient: ¶»¤u1	Time sent: ¶»¤2020-01-06T12:35:20.292	Message body: ¶»¤a
+Message received from: ¶»¤u2	Recipient: ¶»¤u1	Delivered by: ¶»¤p1	Time received: ¶»¤2020-01-06T12:35:20.293	Message body: ¶»¤a
+Message received in local router from external user: ¶»¤u2	Recipient: ¶»¤u1	Time sent: ¶»¤2020-01-06T12:35:21.365	Message body: ¶»¤b
+Message received from: ¶»¤u2	Recipient: ¶»¤u1	Delivered by: ¶»¤p1	Time received: ¶»¤2020-01-06T12:35:21.365	Message body: ¶»¤b
+Message received in local router from external user: ¶»¤u2	Recipient: ¶»¤u1	Time sent: ¶»¤2020-01-06T12:35:22.260	Message body: ¶»¤c
+Message received from: ¶»¤u2	Recipient: ¶»¤u1	Delivered by: ¶»¤p1	Time received: ¶»¤2020-01-06T12:35:22.261	Message body: ¶»¤c
+Message received in local router from external user: ¶»¤u2	Recipient: ¶»¤u1	Time sent: ¶»¤2020-01-06T12:35:49.604	Message body: ¶»¤this
+Message received from: ¶»¤u2	Recipient: ¶»¤u1	Delivered by: ¶»¤p1	Time received: ¶»¤2020-01-06T12:35:49.605	Message body: ¶»¤this
+Message received in local router from external user: ¶»¤u3	Recipient: ¶»¤u1	Time sent: ¶»¤2020-01-06T12:36:33.500	Message body: ¶»¤hewwo
+Message received from: ¶»¤u3	Recipient: ¶»¤u1	Delivered by: ¶»¤p1	Time received: ¶»¤2020-01-06T12:36:33.501	Message body: ¶»¤hewwo
+Message sent to: ¶»¤u3	Sender: ¶»¤u1	Passed to: ¶»¤p1	Time sent: ¶»¤2020-01-06T12:37:18.467	Message body: ¶»¤test
+Message sent to: ¶»¤u2	Sender: ¶»¤u1	Passed to: ¶»¤p1	Time sent: ¶»¤2020-01-06T12:38:13.739	Message body: ¶»¤test
+Message sent to: ¶»¤u2	Sender: ¶»¤u1	Passed to: ¶»¤p1	Time sent: ¶»¤2020-01-06T12:54:17.584	Message body: ¶»¤hi
+Message forwarded from router to external user: ¶»¤u2	Sender: ¶»¤u1	Time sent: ¶»¤2020-01-06T12:54:17.584	Message body: ¶»¤hi
+Message sent to: ¶»¤u2 	Sender: ¶»¤u1	Passed to: ¶»¤p1	Time sent: ¶»¤2020-01-06T13:18:55.136	Message body: ¶»¤hi
+Message sent to: ¶»¤u2	Sender: ¶»¤u1	Passed to: ¶»¤p1	Time sent: ¶»¤2020-01-06T13:19:09.208	Message body: ¶»¤hi
+Message forwarded from router to external user: ¶»¤u2	Sender: ¶»¤u1	Time sent: ¶»¤2020-01-06T13:19:09.208	Message body: ¶»¤hi
+Message sent to: ¶»¤u2	Sender: ¶»¤u1	Passed to: ¶»¤p1	Time sent: ¶»¤2020-01-06T13:19:15.544	Message body: ¶»¤1
+Message forwarded from router to external user: ¶»¤u2	Sender: ¶»¤u1	Time sent: ¶»¤2020-01-06T13:19:15.544	Message body: ¶»¤1
+Message sent to: ¶»¤u2	Sender: ¶»¤u1	Passed to: ¶»¤p1	Time sent: ¶»¤2020-01-06T13:19:16.256	Message body: ¶»¤2
+Message forwarded from router to external user: ¶»¤u2	Sender: ¶»¤u1	Time sent: ¶»¤2020-01-06T13:19:16.256	Message body: ¶»¤2
+Message sent to: ¶»¤u2	Sender: ¶»¤u1	Passed to: ¶»¤p1	Time sent: ¶»¤2020-01-06T13:19:16.935	Message body: ¶»¤3
+Message forwarded from router to external user: ¶»¤u2	Sender: ¶»¤u1	Time sent: ¶»¤2020-01-06T13:19:16.935	Message body: ¶»¤3
+Message sent to: ¶»¤u2	Sender: ¶»¤u1	Passed to: ¶»¤p1	Time sent: ¶»¤2020-01-08T17:29:31.142	Message body: ¶»¤hi
+Message sent to: ¶»¤u2	Sender: ¶»¤u1	Passed to: ¶»¤p1	Time sent: ¶»¤2020-01-08T17:29:41.115	Message body: ¶»¤
+Message sent to: ¶»¤u2	Sender: ¶»¤u1	Passed to: ¶»¤p1	Time sent: ¶»¤2020-01-08T17:29:41.365	Message body: ¶»¤
+Message sent to: ¶»¤u2	Sender: ¶»¤u1	Passed to: ¶»¤p1	Time sent: ¶»¤2020-01-08T17:29:41.537	Message body: ¶»¤
+Message sent to: ¶»¤u2	Sender: ¶»¤u1	Passed to: ¶»¤p1	Time sent: ¶»¤2020-01-08T17:29:41.708	Message body: ¶»¤
+Message sent to: ¶»¤u2	Sender: ¶»¤u1	Passed to: ¶»¤p1	Time sent: ¶»¤2020-01-08T17:29:41.880	Message body: ¶»¤
+Message sent to: ¶»¤u2	Sender: ¶»¤u1	Passed to: ¶»¤p1	Time sent: ¶»¤2020-01-08T17:29:42.052	Message body: ¶»¤
+Message sent to: ¶»¤u2	Sender: ¶»¤u1	Passed to: ¶»¤p1	Time sent: ¶»¤2020-01-08T17:29:42.208	Message body: ¶»¤
+Message sent to: ¶»¤u2	Sender: ¶»¤u1	Passed to: ¶»¤p1	Time sent: ¶»¤2020-01-08T17:29:42.365	Message body: ¶»¤
+Message sent to: ¶»¤u2	Sender: ¶»¤u1	Passed to: ¶»¤p1	Time sent: ¶»¤2020-01-08T17:29:42.521	Message body: ¶»¤
+Message sent to: ¶»¤u2	Sender: ¶»¤u1	Passed to: ¶»¤p1	Time sent: ¶»¤2020-01-08T17:29:42.693	Message body: ¶»¤
+Message sent to: ¶»¤u2	Sender: ¶»¤u1	Passed to: ¶»¤p1	Time sent: ¶»¤2020-01-08T17:29:42.864	Message body: ¶»¤
+Message sent to: ¶»¤u02	Sender: ¶»¤u01	Passed to: ¶»¤p01	Time sent: ¶»¤2020-01-08T19:52:12.117	Message body: ¶»¤ghfgh
+Message forwarded from router to external user: ¶»¤u02	Sender: ¶»¤u01	Time sent: ¶»¤2020-01-08T19:52:12.117	Message body: ¶»¤ghfgh
+Message received in local router from external user: ¶»¤u03	Recipient: ¶»¤u01	Time received: ¶»¤2020-01-08T19:52:48.945	Message body: ¶»¤fgh
+Message received from: ¶»¤u03	Recipient: ¶»¤u01	Delivered by: ¶»¤p01	Time received: ¶»¤2020-01-08T19:52:48.945	Message body: ¶»¤fgh
+Message sent to: ¶»¤u03	Sender: ¶»¤u01	Passed to: ¶»¤p01	Time sent: ¶»¤2020-01-08T19:52:52.069	Message body: ¶»¤dfhh
+Message forwarded from router to external user: ¶»¤u03	Sender: ¶»¤u01	Time sent: ¶»¤2020-01-08T19:52:52.069	Message body: ¶»¤dfhh
+Message sent to: ¶»¤u02	Sender: ¶»¤u01	Passed to: ¶»¤p01	Time sent: ¶»¤2020-01-08T19:53:11.695	Message body: ¶»¤fgn

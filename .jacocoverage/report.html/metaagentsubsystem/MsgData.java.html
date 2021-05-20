@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>MsgData.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCoverage analysis of project &quot;MetaAgentSubsystem&quot; (powered by JaCoCo from EclEmma)</a> &gt; <a href="index.source.html" class="el_package">metaagentsubsystem</a> &gt; <span class="el_source">MsgData.java</span></div><h1>MsgData.java</h1><pre class="source lang-java linenums">package metaagentsubsystem;
+
+import java.io.Serializable;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+
+/**
+ * Represents the message wrapper.
+ * @author Group B, Carter Ridgeway (v8265314), Chris Burrell (t7145969), Cristian Tudor (v8002382), James Carney (m2023967)
+ */
+public class MsgData implements Serializable
+{
+    /**
+     * Class Instance Variables
+     */
+    public static int msgCount;  
+    private int msgId;
+    private MessageType type;
+    private String handle;
+    private String timestamp;
+    private String sender;
+    private String recipient;
+    private String body;
+    private List&lt;String&gt; agentsList;
+    
+    /**
+     * Constructor for messages including only two parameters
+     * @param handle handle or name of agent
+     * @param type message type
+     */
+    public MsgData(String handle, MessageType type)
+    {
+<span class="fc" id="L35">        this(handle, null, null, null, type);</span>
+<span class="fc" id="L36">    }</span>
+
+
+    /**
+     * Constructor for messages including three parameters
+     * @param sender takes a sender in
+     * @param recipient and a recipient
+     * @param type and type of message
+     */
+    public MsgData(String sender, String recipient, MessageType type)
+    {
+<span class="fc" id="L47">        this(null, sender, recipient, null, type);</span>
+<span class="fc" id="L48">    }</span>
+    
+    /**
+     * Constructor for messages including four parameters
+     * @param sender sender handle
+     * @param recipient recipient handle
+     * @param body message body
+     */
+    public MsgData(String sender, String recipient, String body)
+    {
+<span class="fc" id="L58">        this(null, sender, recipient, body, MessageType.USER);</span>
+<span class="fc" id="L59">    }</span>
+    
+    /**
+     * Constructor for messages only containing list of agents
+     * @param agentsList list of agent names
+     */
+    public MsgData(List&lt;String&gt; agentsList)
+    {
+<span class="fc" id="L67">        this(null, null, null, null, MessageType.LIST);</span>
+<span class="fc" id="L68">        setAgentsList(agentsList);</span>
+<span class="fc" id="L69">    }</span>
+    
+    /**
+     * Complete constructor that is used by the others
+     * @param handle name of message
+     * @param sender sender handle
+     * @param recipient recipient handle
+     * @param body message body
+     * @param type type of message
+     */
+    public MsgData(String handle, String sender, String recipient, String body, MessageType type)
+<span class="fc" id="L80">    {</span>
+<span class="fc" id="L81">        SimpleDateFormat sdf = new SimpleDateFormat(&quot;yyyy.MM.dd.HH.mm.ss&quot;);</span>
+<span class="fc" id="L82">        Date date = new Date();</span>
+<span class="fc" id="L83">        Timestamp timestamp = new Timestamp(date.getTime());</span>
+<span class="fc" id="L84">        msgCount++;</span>
+<span class="fc" id="L85">        this.msgId = msgCount;</span>
+<span class="fc" id="L86">        this.handle = handle; </span>
+<span class="fc" id="L87">        this.sender = sender;</span>
+<span class="fc" id="L88">        this.recipient = recipient;</span>
+<span class="fc" id="L89">        this.body = body;</span>
+<span class="fc" id="L90">        this.type = type;</span>
+<span class="fc" id="L91">        this.timestamp = sdf.format(timestamp);</span>
+<span class="fc" id="L92">    }</span>
+    
+    /**
+     * Method that takes a list of strings and returns the list
+     * @return a list of Agents
+     */
+    public List&lt;String&gt; getAgentsList() {
+<span class="fc" id="L99">        return agentsList;</span>
+    }
+    
+    /**
+     * Method accepts a list of strings and sets the local list accordingly
+     * @param agentsList is the name of a passed in list 
+     */
+    public void setAgentsList(List&lt;String&gt; agentsList) {
+<span class="fc" id="L107">        this.agentsList = agentsList;</span>
+<span class="fc" id="L108">    }</span>
+    
+    /**
+     * String that returns data from a message body
+     * @return string 
+     */
+    public String getBody() {
+<span class="fc" id="L115">        return body;</span>
+    }
+    
+    /**
+     * Method sets the object body with the parameter passed in
+     * @param body string is the message body
+     */
+    public void setBody(String body) {
+<span class="fc" id="L123">        this.body = body;</span>
+<span class="fc" id="L124">    }</span>
+    
+    /**
+     * Method returns Id of the message object
+     * @return message Id
+     */
+    public int getId() 
+    {
+<span class="fc" id="L132">        return msgId;</span>
+    }
+
+    /**
+     * Method returns the name given as the handle 
+     * @return handle is name
+     */
+    public String getHandle() 
+    {
+<span class="fc" id="L141">        return handle;</span>
+    }
+    
+    /**
+     * Method that returns the time of the message
+     * @return is a string
+     */
+    public String getTimestamp() 
+    {
+<span class="fc" id="L150">        return timestamp;</span>
+    }
+    
+    /**
+     * Method returns the message type
+     * @return enum identifier 
+     */
+    public MessageType getType()
+    {
+<span class="fc" id="L159">        return type;</span>
+    }
+
+    /**
+     * Method which returns the sender name 
+     * @return is a string
+     */
+    public String getSender() {
+<span class="fc" id="L167">        return sender;</span>
+    }
+    
+    /**
+     * Method takes a parameter and sets the local variable
+     * @param sender is the string name
+     */
+    public void setSender(String sender) {
+<span class="fc" id="L175">        this.sender = sender;</span>
+<span class="fc" id="L176">    }</span>
+
+    /**
+     * Method returns the message recipient
+     * @return string name
+     */
+    public String getRecipient() {
+<span class="fc" id="L183">        return recipient;</span>
+    }
+
+    /**
+     * Method that takes an int and sets this as the message Id
+     * @param msgId is the int passed in
+     */
+    public void setId(int msgId) {
+<span class="fc" id="L191">        this.msgId = msgId;</span>
+<span class="fc" id="L192">    }</span>
+    
+    /**
+     * Method takes a string name of recipient and sets the local variable
+     * @param recipient 
+     */
+    public void setRecipient(String recipient) {
+<span class="fc" id="L199">        this.recipient = recipient;</span>
+<span class="fc" id="L200">    }</span>
+    
+    /**
+     * To String Method set to display the message data as a whole string
+     * @return string
+     */
+    @Override
+    public String toString()
+    {
+<span class="fc" id="L209">        return handle + &quot;/&quot; + sender + &quot;/&quot; + recipient + &quot;/&quot; + body + &quot;/&quot; + type.toString();</span>
+    }
+    
+    /**
+     * Method to set the message Id
+     * @param msgId ID
+     */
+    public void setMsgId(int msgId) {
+<span class="nc" id="L217">        this.msgId = msgId;</span>
+<span class="nc" id="L218">    }</span>
+
+    /**
+     * Method to set the message type
+     * @param type type of message
+     */
+    public void setType(MessageType type) {
+<span class="nc" id="L225">        this.type = type;</span>
+<span class="nc" id="L226">    }</span>
+
+    /**
+     * Method to set the message handle
+     * @param handle name given
+     */
+    public void setHandle(String handle) {
+<span class="nc" id="L233">        this.handle = handle;</span>
+<span class="nc" id="L234">    }</span>
+    
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

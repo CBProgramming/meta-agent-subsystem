@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>Portal.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCoverage analysis of project &quot;MetaAgentSubsystem&quot; (powered by JaCoCo from EclEmma)</a> &gt; <a href="index.source.html" class="el_package">metaagentsubsystem</a> &gt; <span class="el_source">Portal.java</span></div><h1>Portal.java</h1><pre class="source lang-java linenums">package metaagentsubsystem;
+
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.TreeMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+/**
+ * Class portal allows a object of portal to be created and this is a necessary component in the metaAgent system
+ * @author Carter Ridgeway (v8265314), Chris Burrell (t7145969), Cristian Tudor (v8002382), James Carney (m2023967)
+ */
+public class Portal extends MetaAgent
+{
+    //Instance Variables
+    private PortalMonitor monitor;   
+    private TreeMap&lt;String, MetaAgent&gt; routingTable;
+<span class="fc" id="L23">    private ReentrantLock lock = new ReentrantLock();</span>
+    
+    /**
+     * Constructor for the portal 
+     * @param name needed to name the portal
+     * @param router is the object of router associated with the portal object
+     * Action is also taken to add the name to the portal routing table
+     * Then the portal to the object of router
+     */
+    public Portal(String name, Router router)
+    {
+<span class="fc" id="L34">        super(name);</span>
+<span class="fc" id="L35">        type = MetaAgentType.PORTAL;</span>
+<span class="fc" id="L36">        routingTable = new TreeMap&lt;&gt;();</span>
+<span class="fc" id="L37">        routingTable.put(getHandle(), this);</span>
+<span class="fc" id="L38">        router.addAgent(this);</span>
+<span class="fc" id="L39">    }</span>
+    
+    /**
+     * Class msgHandler is needed to handle the user/system messages in the system
+     * Messages can be handled in several ways ADD, REMOVE and SAFE REMOVE 
+     * @param md is the message data and all associated data
+     * @throws InterruptedException in event of an error
+     * @throws IOException in the event of an error
+     */
+    @Override
+    protected void msgHandler(MsgData md) throws InterruptedException, IOException
+    {
+<span class="fc" id="L51">        lock.lock();</span>
+<span class="fc bfc" id="L52" title="All 2 branches covered.">        if(md == null)</span>
+        {
+<span class="fc" id="L54">            System.out.println(&quot;Null message&quot;);</span>
+        }
+<span class="fc bfc" id="L56" title="All 2 branches covered.">        else if(md.getType() == null)</span>
+        {
+<span class="fc" id="L58">            System.out.println(&quot;Invalid type&quot;);</span>
+        }
+<span class="pc bpc" id="L60" title="2 of 8 branches missed.">        else if(md.getType() == MessageType.USER &amp;&amp; md.getRecipient() != null &amp; !md.getRecipient().equals(getHandle()))</span>
+        {
+<span class="fc bfc" id="L62" title="All 2 branches covered.">            if(!routingTable.containsKey(md.getRecipient()))</span>
+            {
+<span class="fc" id="L64">                System.out.println(&quot;Recipient not found in &quot; + getHandle());</span>
+<span class="fc" id="L65">                return;</span>
+            }
+            try 
+            {
+<span class="fc" id="L69">                System.out.println(&quot;sending to &quot; + md.getRecipient() + &quot; and am currently at &quot; + getHandle());</span>
+<span class="fc" id="L70">                routingTable.get(md.getRecipient()).put(md); </span>
+            } 
+<span class="nc" id="L72">            catch (InterruptedException ex) </span>
+            {
+<span class="nc" id="L74">                System.out.println(&quot;Adding&quot; + md.getId() + &quot;to queue was interrupted.&quot;);</span>
+<span class="pc" id="L75">            }</span>
+        }
+<span class="fc bfc" id="L77" title="All 4 branches covered.">        else if(md.getType() == MessageType.ADD &amp;&amp; !routingTable.containsKey(md.getSender()))</span>
+        {
+<span class="fc" id="L79">            ConcurrentHashMap&lt;String, MetaAgent&gt; hm = new ConcurrentHashMap(routingTable);</span>
+<span class="fc" id="L80">            routingTable.put(md.getSender(), routingTable.get(md.getRecipient()));</span>
+<span class="fc bfc" id="L81" title="All 2 branches covered.">            for(Map.Entry mapElement : hm.entrySet())</span>
+            {
+<span class="fc" id="L83">                String key = (String)mapElement.getKey();</span>
+<span class="fc" id="L84">                MetaAgent value = (MetaAgent)mapElement.getValue();</span>
+<span class="fc bfc" id="L85" title="All 6 branches covered.">                if(key == value.getHandle() &amp;&amp; key != md.getRecipient() &amp;&amp; value.getType() != MetaAgentType.USER)</span>
+                {
+                    try {
+<span class="fc" id="L88">                        value.put(new MsgData(md.getSender(), getHandle(), MessageType.ADD));</span>
+<span class="nc" id="L89">                    } catch (InterruptedException ex) {</span>
+<span class="nc" id="L90">                        System.out.println(&quot;Interrupted!&quot;);</span>
+<span class="fc" id="L91">                    }</span>
+                }
+<span class="fc" id="L93">            }</span>
+<span class="fc" id="L94">        }</span>
+<span class="fc bfc" id="L95" title="All 4 branches covered.">        else if(md.getType() == MessageType.REMOVE &amp;&amp; routingTable.containsKey(md.getSender()))</span>
+        {
+<span class="fc bfc" id="L97" title="All 2 branches covered.">            if(md.getSender().equals(getHandle()))</span>
+            {         
+<span class="fc" id="L99">                removeAllUsers();</span>
+            }
+<span class="fc bfc" id="L101" title="All 2 branches covered.">            else if(routingTable.get(md.getSender()).getHandle().equals(md.getSender()) </span>
+<span class="pc bpc" id="L102" title="1 of 2 branches missed.">                    &amp;&amp; routingTable.get(md.getSender()).getType().equals(MetaAgentType.USER))</span>
+            {
+<span class="fc" id="L104">                routingTable.get(md.getSender()).removeConnections();</span>
+            }
+<span class="fc" id="L106">            ConcurrentHashMap&lt;String, MetaAgent&gt; hm = new ConcurrentHashMap(routingTable);</span>
+<span class="fc bfc" id="L107" title="All 2 branches covered.">            for(Map.Entry mapElement : hm.entrySet())</span>
+            {
+<span class="fc" id="L109">                String key = (String)mapElement.getKey();</span>
+<span class="fc" id="L110">                MetaAgent value = (MetaAgent)mapElement.getValue();</span>
+<span class="fc bfc" id="L111" title="All 6 branches covered.">                if(key == value.getHandle() &amp;&amp; key != md.getRecipient() &amp;&amp; value.getType() != MetaAgentType.USER)</span>
+                {
+                    try {
+<span class="fc" id="L114">                        value.put(new MsgData(md.getSender(), getHandle(), MessageType.REMOVE));</span>
+<span class="nc" id="L115">                    } catch (InterruptedException ex) {</span>
+<span class="nc" id="L116">                        System.out.println(&quot;Interrupted!&quot;);</span>
+<span class="fc" id="L117">                    }</span>
+                }
+<span class="fc" id="L119">            }</span>
+<span class="fc" id="L120">            routingTable.remove(md.getSender());</span>
+        }
+<span class="fc" id="L122">        lock.unlock();</span>
+<span class="fc" id="L123">    }</span>
+    
+    /**
+     * Add Agent method is used to add an agent to the portal 
+     * This method checks to see if the agent exists before adding to the portal routing table
+     * The method also leads into the distribution of the message from portal to the router 
+     * @param agent is needed to be able to add to the portal routing table
+     * @return true or false 
+     */
+    public boolean addAgent(MetaAgent agent)
+    {
+<span class="fc" id="L134">        lock.lock();</span>
+<span class="fc bfc" id="L135" title="All 2 branches covered.">        if(routingTable.containsKey(agent.getHandle()))</span>
+        {
+<span class="fc" id="L137">            System.out.println(&quot;Agent already exists&quot;);</span>
+<span class="fc" id="L138">            lock.unlock();</span>
+<span class="fc" id="L139">            return false;</span>
+        }
+<span class="pc bpc" id="L141" title="1 of 2 branches missed.">        if (agent.getType() == type)</span>
+        {
+<span class="nc" id="L143">            System.out.println(&quot;Cannot add a portal to a portal&quot;);</span>
+<span class="nc" id="L144">            lock.unlock();</span>
+<span class="nc" id="L145">            return false;</span>
+        }
+<span class="fc" id="L147">        routingTable.put(agent.getHandle(), agent);</span>
+<span class="fc bfc" id="L148" title="All 2 branches covered.">        if (monitor != null)</span>
+        {
+<span class="fc" id="L150">            monitor.agentAdded(getHandle(), agent.getHandle(),agent.type,LocalDateTime.now());</span>
+        }
+<span class="fc" id="L152">        ConcurrentHashMap&lt;String, MetaAgent&gt; copyMap = new ConcurrentHashMap(routingTable);</span>
+<span class="fc bfc" id="L153" title="All 2 branches covered.">        for(Map.Entry mapElement : copyMap.entrySet())</span>
+        {
+<span class="fc" id="L155">            String key = (String)mapElement.getKey();</span>
+<span class="fc" id="L156">            MetaAgent value = (MetaAgent)mapElement.getValue();</span>
+<span class="fc bfc" id="L157" title="All 4 branches covered.">            if(key == value.getHandle() &amp;&amp; value.getType() == MetaAgentType.ROUTER)</span>
+            {
+                try {
+<span class="fc" id="L160">                    value.put(new MsgData(agent.getHandle(), getHandle(), MessageType.ADD));</span>
+<span class="nc" id="L161">                } catch (InterruptedException ex) {</span>
+<span class="nc" id="L162">                    System.out.println(&quot;Interrupted!&quot;);</span>
+<span class="fc" id="L163">                }</span>
+            }
+<span class="fc" id="L165">        }</span>
+<span class="fc" id="L166">        lock.unlock();</span>
+<span class="fc" id="L167">        return true;</span>
+    }
+    
+    /**
+     * The method is used to remove an agent from the portal
+     * This method checks to see if the agent exists before adding to the portal routing table
+     * The method also leads into the removal of the message from portal to the router 
+     * @param handle is needed to be identify the agent to be removed
+     */
+    public void removeAgent(String handle)
+    {
+<span class="fc" id="L178">        lock.lock();</span>
+<span class="pc bpc" id="L179" title="1 of 2 branches missed.">        if(routingTable.containsKey(handle))</span>
+        {
+<span class="fc bfc" id="L181" title="All 4 branches covered.">            if(routingTable.get(handle).getType() == MetaAgentType.ROUTER &amp;&amp; routingTable.get(handle).getHandle().equals(handle))</span>
+            {
+<span class="fc" id="L183">                System.out.println(&quot;Router removal is disallowed...&quot;);</span>
+<span class="fc" id="L184">                lock.unlock();</span>
+<span class="fc" id="L185">                return;</span>
+            }
+<span class="fc bfc" id="L187" title="All 4 branches covered.">            if(routingTable.get(handle).getHandle().equals(handle) &amp;&amp; routingTable.get(handle).getType() == MetaAgentType.USER)</span>
+            {
+<span class="fc" id="L189">                routingTable.get(handle).removeConnections();</span>
+            }
+<span class="fc bfc" id="L191" title="All 2 branches covered.">            if(this.getHandle().equals(handle))</span>
+            {
+<span class="fc" id="L193">                removeAllUsers();</span>
+            }
+<span class="fc" id="L195">            Map&lt;String, MetaAgent&gt; copyMap = new ConcurrentHashMap&lt;&gt;(routingTable);</span>
+<span class="fc" id="L196">            MetaAgentType type = getTypeFromTable(handle);</span>
+<span class="fc" id="L197">            routingTable.remove(handle);</span>
+<span class="fc bfc" id="L198" title="All 2 branches covered.">            if (monitor != null)</span>
+            {
+<span class="fc" id="L200">                monitor.agentRemoved(this.getHandle(), handle, type, LocalDateTime.now());</span>
+            }
+<span class="fc bfc" id="L202" title="All 2 branches covered.">            for(Map.Entry mapElement : copyMap.entrySet())</span>
+            {
+<span class="fc" id="L204">                String key = (String)mapElement.getKey();</span>
+<span class="fc" id="L205">                MetaAgent value = (MetaAgent)mapElement.getValue();</span>
+<span class="fc bfc" id="L206" title="All 4 branches covered.">                if(key == value.getHandle() &amp;&amp; value.getType() == MetaAgentType.ROUTER)</span>
+                {
+                    try {
+<span class="fc" id="L209">                        value.put(new MsgData(handle, this.getHandle(), MessageType.REMOVE));</span>
+<span class="nc" id="L210">                    } catch (InterruptedException ex) {</span>
+<span class="nc" id="L211">                        Logger.getLogger(Portal.class.getName()).log(Level.SEVERE, null, ex);</span>
+<span class="fc" id="L212">                    }</span>
+                }
+<span class="fc" id="L214">            }</span>
+        }
+<span class="fc" id="L216">        lock.unlock();</span>
+<span class="fc" id="L217">    }</span>
+    
+    /**
+     * This method allows removal for all users from the portal
+     * Searches the routing table and removes users until empty
+     */
+    public void removeAllUsers()
+    {
+<span class="fc" id="L225">        Map&lt;String, MetaAgent&gt; copyMap = new ConcurrentHashMap&lt;&gt;(routingTable);</span>
+<span class="fc bfc" id="L226" title="All 2 branches covered.">        for(Map.Entry mapElement : copyMap.entrySet())</span>
+        {
+<span class="fc" id="L228">            String key = (String)mapElement.getKey();</span>
+<span class="fc" id="L229">            MetaAgent value = (MetaAgent)mapElement.getValue();</span>
+<span class="fc bfc" id="L230" title="All 4 branches covered.">            if(key == value.getHandle() &amp;&amp; value.getType() == MetaAgentType.USER)</span>
+            {
+                try {
+<span class="fc" id="L233">                    this.put(new MsgData(key, getHandle(), MessageType.REMOVE));</span>
+<span class="pc bpc" id="L234" title="1 of 2 branches missed.">                    if (monitor != null)</span>
+                    {
+<span class="nc" id="L236">                        monitor.agentRemoved(this.getHandle(), value.getHandle(), value.getType(), LocalDateTime.now());</span>
+                    }
+<span class="fc" id="L238">                    value.removeConnections();</span>
+<span class="nc" id="L239">                } catch (InterruptedException ex) {</span>
+<span class="nc" id="L240">                    Logger.getLogger(Portal.class.getName()).log(Level.SEVERE, null, ex);</span>
+<span class="fc" id="L241">                }</span>
+            }
+<span class="fc" id="L243">        }</span>
+<span class="fc" id="L244">    }</span>
+  
+    /**
+     * The methods is needed to allow access to the routing table
+     * @return the routing table
+     */
+    public TreeMap&lt;String, MetaAgent&gt; getRoutingTable() 
+    {
+<span class="fc" id="L252">        return routingTable;</span>
+    }
+    
+    /**
+     * Class setMonitor is used to set the local variable monitor needed for the object
+     * @param pm is a portal monitor
+     */
+    public void setMonitor(PortalMonitor pm)
+    {
+<span class="fc" id="L261">        monitor = pm;</span>
+<span class="fc" id="L262">    }</span>
+
+    /**
+     * Method needed to return the objects monitor variable 
+     * @return the monitor
+     */
+    public PortalMonitor getMonitor() 
+    {
+<span class="fc" id="L270">        return monitor;</span>
+    }
+    
+    /**
+     * Method which returns the type of metaAgent from the routing table
+     * @param handle name of the metaAgent
+     * @return the type or null if applicable
+     */
+    //needed for system logging
+    public MetaAgentType getTypeFromTable(String handle)
+    {
+        try
+        {
+<span class="fc bfc" id="L283" title="All 2 branches covered.">        if (routingTable.get(handle).getType() == MetaAgentType.ROUTER)</span>
+        {
+<span class="fc bfc" id="L285" title="All 2 branches covered.">            if(routingTable.get(handle).getRoutingTable().get(handle).getType() == MetaAgentType.ROUTER)</span>
+            {
+<span class="fc" id="L287">                return MetaAgentType.ROUTER;                </span>
+            }
+<span class="pc bpc" id="L289" title="1 of 2 branches missed.">            else if(routingTable.get(handle).getRoutingTable().get(handle).getType() == MetaAgentType.PORTAL)</span>
+            {
+<span class="fc bfc" id="L291" title="All 2 branches covered.">                if(routingTable.get(handle).getRoutingTable().get(handle).getRoutingTable().get(handle).getType() == MetaAgentType.PORTAL)</span>
+                {
+<span class="fc" id="L293">                    return MetaAgentType.PORTAL;</span>
+                }
+                else
+                {
+<span class="fc" id="L297">                    return MetaAgentType.USER;</span>
+                }
+            }
+            else
+            {
+<span class="nc" id="L302">                return MetaAgentType.SOCKET;  </span>
+            }
+        } 
+<span class="fc bfc" id="L305" title="All 2 branches covered.">        else if (routingTable.get(handle).getType() == MetaAgentType.USER)</span>
+        {
+<span class="fc" id="L307">            return MetaAgentType.USER;  </span>
+        } 
+        else
+        {
+<span class="fc" id="L311">            return null;  </span>
+        }
+        }
+<span class="fc" id="L314">        catch(Exception e)</span>
+        {
+<span class="fc" id="L316">            return null;            </span>
+        }
+    }
+    
+    /**
+     * Method of type list that returns all the users from the routing table 
+     * @return list of users
+     */
+    public ArrayList&lt;String&gt; getAllUsers()
+    {
+<span class="nc" id="L326">        ArrayList&lt;String&gt; list = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L327">        Map&lt;String, MetaAgent&gt; copyMap = new ConcurrentHashMap&lt;&gt;(routingTable);</span>
+<span class="nc bnc" id="L328" title="All 2 branches missed.">        for(Map.Entry mapElement : copyMap.entrySet())</span>
+        {
+<span class="nc" id="L330">            String key = (String)mapElement.getKey();</span>
+<span class="nc" id="L331">            MetaAgent value = (MetaAgent)mapElement.getValue();</span>
+<span class="nc bnc" id="L332" title="All 4 branches missed.">            if(key == value.getHandle() &amp;&amp; value.getType() == MetaAgentType.USER)</span>
+            {
+<span class="nc" id="L334">                list.add(key);</span>
+            }
+<span class="nc" id="L336">        }</span>
+<span class="nc" id="L337">        return list;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

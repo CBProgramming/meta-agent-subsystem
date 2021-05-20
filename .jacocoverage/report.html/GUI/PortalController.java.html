@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>PortalController.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCoverage analysis of project &quot;MetaAgentSubsystem&quot; (powered by JaCoCo from EclEmma)</a> &gt; <a href="index.source.html" class="el_package">GUI</a> &gt; <span class="el_source">PortalController.java</span></div><h1>PortalController.java</h1><pre class="source lang-java linenums">package GUI;
+
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.util.Vector;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import metaagentsubsystem.Portal;
+import metaagentsubsystem.Router;
+import metaagentsubsystem.UserAgent;
+
+/**
+ * Class Portal Controller enables the displaying of information from routers
+ * @author Carter Ridgeway (v8265314), Chris Burrell (t7145969), Cristian Tudor (v8002382), James Carney (m2023967)
+ */
+public class PortalController extends JFrame
+{
+    //Instance Variables
+    private RouterController rc;
+    private PortalController self;
+    
+    private Vector&lt;Portal&gt; portals;
+    private Vector&lt;String&gt; portalHandles;
+    
+    private JPanel panel;
+    
+    private JLabel portalLabel;
+    private JComboBox&lt;String&gt; portalComboBox;
+    
+    private JLabel portalTitleLabel;
+    private JTextField portalTitleTextField;
+    
+    private JLabel userTitleLabel;
+    private JTextField userTitleTextField;
+    
+    private JButton confirmButton;
+    private JButton cancelButton;
+    
+    /**
+     * Constructor for the GUI
+     * @param title name
+     * @param rc router controller
+     * @param portals list of portals 
+     */
+    public PortalController(String title, RouterController rc, Vector&lt;Portal&gt; portals)
+    {
+<span class="nc" id="L56">        super(title);</span>
+        
+<span class="nc" id="L58">        this.rc = rc;</span>
+<span class="nc" id="L59">        self = this;</span>
+        
+<span class="nc" id="L61">        this.portals = portals;</span>
+<span class="nc" id="L62">        this.portalHandles = new Vector();</span>
+<span class="nc" id="L63">        this.portalHandles.add(&quot;New Portal&quot;);</span>
+<span class="nc" id="L64">        portals.forEach((n) -&gt; portalHandles.add(n.getHandle()));</span>
+        
+<span class="nc" id="L66">        panel = new JPanel();</span>
+        
+<span class="nc" id="L68">        panel.setLayout(new GridBagLayout());</span>
+<span class="nc" id="L69">        GridBagConstraints gbc = new GridBagConstraints();</span>
+                
+<span class="nc" id="L71">        portalLabel = new JLabel(&quot;Portal:&quot;);</span>
+<span class="nc" id="L72">        gbc.gridx = 0;</span>
+<span class="nc" id="L73">        gbc.gridy = 0;</span>
+<span class="nc" id="L74">        panel.add(portalLabel, gbc);</span>
+        
+<span class="nc" id="L76">        portalComboBox = new JComboBox&lt;String&gt;(portalHandles);</span>
+<span class="nc" id="L77">        portalComboBox.setSelectedIndex(1);</span>
+        
+<span class="nc" id="L79">        portalComboBox.addItemListener(new ItemListener()</span>
+<span class="nc" id="L80">        {</span>
+            @Override
+            public void itemStateChanged(ItemEvent e) 
+            {
+<span class="nc bnc" id="L84" title="All 2 branches missed.">                if(portalComboBox.getSelectedIndex() == 0)</span>
+                {
+<span class="nc" id="L86">                    portalTitleLabel.setVisible(true);</span>
+<span class="nc" id="L87">                    portalTitleTextField.setVisible(true);        </span>
+                }
+                else
+                {
+<span class="nc" id="L91">                    portalTitleLabel.setVisible(false);</span>
+<span class="nc" id="L92">                    portalTitleTextField.setVisible(false);  </span>
+                }
+                //throw new UnsupportedOperationException(&quot;Not supported yet.&quot;); //To change body of generated methods, choose Tools | Templates.
+<span class="nc" id="L95">            }</span>
+            
+        });
+<span class="nc" id="L98">        gbc.gridx = 1;</span>
+<span class="nc" id="L99">        gbc.gridy = 0;</span>
+<span class="nc" id="L100">        panel.add(portalComboBox, gbc);</span>
+        
+<span class="nc" id="L102">        portalTitleLabel = new JLabel(&quot;Portal Name:&quot;);</span>
+<span class="nc" id="L103">        portalTitleLabel.setVisible(false);</span>
+<span class="nc" id="L104">        gbc.gridx = 0;</span>
+<span class="nc" id="L105">        gbc.gridy = 1;</span>
+<span class="nc" id="L106">        panel.add(portalTitleLabel, gbc);</span>
+        
+<span class="nc" id="L108">        portalTitleTextField = new JTextField(6);</span>
+<span class="nc" id="L109">        portalTitleTextField.setVisible(false);</span>
+<span class="nc" id="L110">        gbc.gridx = 1;</span>
+<span class="nc" id="L111">        gbc.gridy = 1;</span>
+<span class="nc" id="L112">        panel.add(portalTitleTextField, gbc);</span>
+        
+<span class="nc" id="L114">        userTitleLabel = new JLabel(&quot;User Name:&quot;);</span>
+<span class="nc" id="L115">        gbc.gridx = 0;</span>
+<span class="nc" id="L116">        gbc.gridy = 2;</span>
+<span class="nc" id="L117">        panel.add(userTitleLabel, gbc);</span>
+        
+<span class="nc" id="L119">        userTitleTextField = new JTextField(6);</span>
+<span class="nc" id="L120">        gbc.gridx = 1;</span>
+<span class="nc" id="L121">        gbc.gridy = 2;</span>
+<span class="nc" id="L122">        panel.add(userTitleTextField, gbc);</span>
+        
+<span class="nc" id="L124">        confirmButton = new JButton(&quot;Ok&quot;);</span>
+<span class="nc" id="L125">        confirmButton.addActionListener(new ActionListener()</span>
+<span class="nc" id="L126">        {</span>
+            public void actionPerformed(ActionEvent e)
+            {
+<span class="nc" id="L129">                UserAgent newUser = null;</span>
+                
+<span class="nc bnc" id="L131" title="All 2 branches missed.">                if(portalComboBox.getSelectedIndex() == 0)</span>
+                {
+<span class="nc" id="L133">                    Portal newPortal = new Portal(portalTitleTextField.getText(), rc.router);</span>
+<span class="nc" id="L134">                    rc.addPortal(newPortal);</span>
+                    
+<span class="nc" id="L136">                    newUser = new UserAgent(userTitleTextField.getText(), newPortal);</span>
+<span class="nc" id="L137">                    newPortal.addAgent(newUser);</span>
+<span class="nc" id="L138">                }</span>
+                else
+                {
+<span class="nc" id="L141">                    int i = 0;</span>
+<span class="nc" id="L142">                    String portalHandle = portalHandles.elementAt(portalComboBox.getSelectedIndex());</span>
+<span class="nc" id="L143">                    Portal portal = null;</span>
+                    
+<span class="nc bnc" id="L145" title="All 4 branches missed.">                    while(!portals.isEmpty() &amp;&amp; i &lt; portals.size())</span>
+                    {
+<span class="nc bnc" id="L147" title="All 2 branches missed.">                        if(portals.elementAt(i).getHandle() == portalHandle)</span>
+                        {
+<span class="nc" id="L149">                            portal = portals.elementAt(i);</span>
+                        }
+                        
+<span class="nc" id="L152">                        i++;</span>
+                    }
+                    
+<span class="nc" id="L155">                    newUser = new UserAgent(userTitleTextField.getText(), portal);</span>
+<span class="nc" id="L156">                    portal.addAgent(newUser);</span>
+                }
+                
+<span class="nc" id="L159">                MsgWindow msgWindow = new MsgWindow(newUser.getHandle(), newUser);</span>
+<span class="nc" id="L160">                msgWindow.pack();</span>
+<span class="nc" id="L161">                msgWindow.setVisible(true);</span>
+                
+<span class="nc" id="L163">                newUser.setMonitor(new GUIUserMonitor(msgWindow));</span>
+                
+<span class="nc" id="L165">                self.dispose();</span>
+<span class="nc" id="L166">            }</span>
+        });
+<span class="nc" id="L168">        gbc.gridx = 0;</span>
+<span class="nc" id="L169">        gbc.gridy = 3;</span>
+<span class="nc" id="L170">        panel.add(confirmButton, gbc);</span>
+        
+<span class="nc" id="L172">        cancelButton = new JButton(&quot;Cancel&quot;);</span>
+<span class="nc" id="L173">        cancelButton.addActionListener(new ActionListener()</span>
+<span class="nc" id="L174">        {</span>
+            public void actionPerformed(ActionEvent e)
+            {
+<span class="nc" id="L177">                dispose();</span>
+<span class="nc" id="L178">            }</span>
+        });
+<span class="nc" id="L180">        gbc.gridx = 1;</span>
+<span class="nc" id="L181">        gbc.gridy = 3;</span>
+<span class="nc" id="L182">        panel.add(cancelButton, gbc);</span>
+        
+<span class="nc" id="L184">        this.add(panel);</span>
+<span class="nc" id="L185">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

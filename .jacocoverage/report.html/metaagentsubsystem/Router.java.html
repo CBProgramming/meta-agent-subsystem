@@ -1,0 +1,607 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>Router.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCoverage analysis of project &quot;MetaAgentSubsystem&quot; (powered by JaCoCo from EclEmma)</a> &gt; <a href="index.source.html" class="el_package">metaagentsubsystem</a> &gt; <span class="el_source">Router.java</span></div><h1>Router.java</h1><pre class="source lang-java linenums">package metaagentsubsystem;
+
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.UnknownHostException;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.TreeMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import static metaagentsubsystem.MetaAgent.poolSize;
+
+/**
+ * Class Router allows for creation of Router object extending MetaAgent
+ * @author Carter Carter Ridgeway (v8265314), Chris Burrell (t7145969), Cristian Tudor (v8002382), James Carney (m2023967)
+ */
+public class Router extends MetaAgent
+{   
+    //Instance Variables
+<span class="fc" id="L30">    private static Router instance = null;</span>
+    private TreeMap&lt;String, MetaAgent&gt; routingTable;
+    private TreeMap&lt;String, Connection&gt; connections;
+<span class="fc" id="L33">    ReentrantLock lock = new ReentrantLock();</span>
+    ServerSocket serverSocket;
+    private int socketNumber;    
+    private String ipAdress;
+    private int port;    
+    private RouterMonitor monitor;
+    
+    /**
+     * Constructor method for creating object of Router
+     * @param handle name given to the Router
+     */
+    private Router(String handle)
+    {
+<span class="fc" id="L46">        super(handle);</span>
+<span class="fc" id="L47">        lock = new ReentrantLock();</span>
+<span class="fc" id="L48">        type = MetaAgentType.ROUTER;</span>
+<span class="fc" id="L49">        socketNumber = 0;</span>
+<span class="fc" id="L50">        routingTable = new TreeMap&lt;&gt;();</span>
+<span class="fc" id="L51">        routingTable.put(handle, this);</span>
+<span class="fc" id="L52">        connections = new TreeMap&lt;&gt;();</span>
+<span class="fc" id="L53">    }</span>
+    
+    /**
+     * The method will return the instance of the Router
+     * @return the router
+     */
+    public static Router getInstance()
+    {
+<span class="fc" id="L61">        return instance;</span>
+    }
+    
+    /**
+     * Method that allows a new instance of router to be created 
+     * @param handle name of the router
+     * @return instance of the router
+     */
+    public static Router createNew(String handle)
+    {
+<span class="fc bfc" id="L71" title="All 2 branches covered.">        if(instance != null)</span>
+        {
+<span class="fc" id="L73">            return null;</span>
+        }
+<span class="fc" id="L75">        instance = new Router(handle);</span>
+<span class="fc" id="L76">        return instance;</span>
+    }
+    
+    /**
+     * Method is used to get the routing table from the router object
+     * @return the routing table
+     */
+    public TreeMap&lt;String, MetaAgent&gt; getRoutingTable() {
+<span class="fc" id="L84">        return routingTable;</span>
+    }
+    
+    /**
+     * Method allows the advertising of the connection to available routers
+     * @param port is the port on which the router operates
+     * @throws UnknownHostException throws error when needed
+     * @throws IOException throws exception when needed
+     */
+    public void advertiseConnection(int port) throws UnknownHostException, IOException
+    {
+<span class="pc bpc" id="L95" title="1 of 2 branches missed.">        if(serverSocket == null)</span>
+        {
+            //InetAddress localHost = InetAddress.getLocalHost();
+<span class="fc" id="L98">            ipAdress = InetAddress.getLocalHost().getHostAddress().trim();</span>
+<span class="fc" id="L99">            InetAddress bindAddress = InetAddress.getByName(ipAdress);</span>
+<span class="fc" id="L100">            this.port = port;</span>
+<span class="fc" id="L101">            serverSocket = new ServerSocket(port, 0, bindAddress);</span>
+<span class="fc" id="L102">            acceptThread();</span>
+        }
+<span class="fc" id="L104">    }</span>
+
+    /**
+     * This method gets the port of the router object
+     * @return port number
+     */
+    public int getPort() {
+<span class="fc" id="L111">        return port;</span>
+    }
+    
+    /**
+     * Class msgHandler is needed to handle the user/system messages in the system
+     * Messages can be handled in several ways ADD and REMOVE 
+     * @param md is the message data and all associated data
+     * @throws InterruptedException in event of an error
+     * @throws IOException in the event of an exception
+     */
+    protected void msgHandler(MsgData md) throws InterruptedException, IOException
+    {
+<span class="fc" id="L123">        lock.lock();</span>
+        //System.out.println(md.toString());
+<span class="fc bfc" id="L125" title="All 2 branches covered.">        if(md.getType() == MessageType.USER)</span>
+        {
+<span class="fc" id="L127">            System.out.println(&quot;sending to &quot; + md.getRecipient() + &quot; and am currently at &quot; + getHandle());</span>
+<span class="fc bfc" id="L128" title="All 2 branches covered.">            if(!routingTable.containsKey(md.getRecipient()))</span>
+            {
+<span class="fc" id="L130">                System.out.println(&quot;Recipient not found in &quot; + getHandle());</span>
+<span class="fc" id="L131">                return;</span>
+            }
+<span class="pc bpc" id="L133" title="3 of 4 branches missed.">            if(routingTable.get(md.getRecipient()).getType() == MetaAgentType.SOCKET &amp;&amp; monitor != null)</span>
+            {
+<span class="nc" id="L135">                monitor.messageRecieved(md.getHandle(), md.getSender(), md.getRecipient(), md.getBody(), LocalDateTime.now());</span>
+            }
+<span class="fc" id="L137">            routingTable.get(md.getRecipient()).put(md);</span>
+        }
+<span class="fc bfc" id="L139" title="All 4 branches covered.">        else if(md.getType() == MessageType.ADD &amp;&amp; !routingTable.containsKey(md.getSender()))</span>
+        {
+<span class="fc" id="L141">            routingTable.put(md.getSender(), routingTable.get(md.getRecipient()));</span>
+     
+<span class="fc bfc" id="L143" title="All 2 branches covered.">            for(Map.Entry mapElement : routingTable.entrySet())</span>
+            {
+<span class="fc" id="L145">                String key = (String)mapElement.getKey();</span>
+<span class="fc" id="L146">                MetaAgent value = (MetaAgent)mapElement.getValue();</span>
+<span class="fc bfc" id="L147" title="All 4 branches covered.">                if(key == value.getHandle() &amp;&amp; key != md.getRecipient())</span>
+                {
+                    try {
+<span class="fc" id="L150">                        value.put(new MsgData(md.getSender(), getHandle(), MessageType.ADD));</span>
+<span class="nc" id="L151">                    } catch (InterruptedException ex) {</span>
+<span class="nc" id="L152">                        System.out.println(&quot;Interrupted!&quot;);</span>
+<span class="fc" id="L153">                    }</span>
+                }
+<span class="fc" id="L155">            }</span>
+        }
+<span class="fc bfc" id="L157" title="All 4 branches covered.">        else if(md.getType() == MessageType.REMOVE &amp;&amp; routingTable.containsKey(md.getSender()))</span>
+        {
+<span class="fc bfc" id="L159" title="All 2 branches covered.">            for(Map.Entry mapElement : routingTable.entrySet())</span>
+            {
+<span class="fc" id="L161">                String key = (String)mapElement.getKey();</span>
+<span class="fc" id="L162">                MetaAgent value = (MetaAgent)mapElement.getValue();</span>
+<span class="fc bfc" id="L163" title="All 4 branches covered.">                if(key == value.getHandle() &amp;&amp; key != md.getRecipient())</span>
+                {
+                    try {
+<span class="fc" id="L166">                        value.put(new MsgData(md.getSender(), getHandle(), MessageType.REMOVE));</span>
+<span class="nc" id="L167">                    } catch (InterruptedException ex) {</span>
+<span class="nc" id="L168">                        System.out.println(&quot;Interrupted!&quot;);</span>
+<span class="fc" id="L169">                    }</span>
+                }
+<span class="fc" id="L171">            }</span>
+<span class="fc" id="L172">            routingTable.remove(md.getSender());</span>
+        }
+<span class="fc" id="L174">        lock.unlock();</span>
+<span class="fc" id="L175">    }</span>
+    
+    /**
+     * Method newConnection is used to connect one router in the system
+     * @param remoteIp is the address needed for the connection 
+     * @param remotePort is the port which the connection will be made with
+     */
+    public void newConnection(String remoteIp, int remotePort) 
+    {
+<span class="nc" id="L184">        lock.lock();</span>
+<span class="nc" id="L185">        SocketAgent newSocket = new SocketAgent(&quot;s&quot; + socketNumber++, this, remoteIp, remotePort);</span>
+<span class="nc" id="L186">        newSocket.newConnection();</span>
+<span class="nc" id="L187">        lock.unlock();</span>
+<span class="nc" id="L188">    }</span>
+    
+    /**
+     * Method newReturnConnection is used to connect back to the router in response to the initial connection 
+     * @param remoteIp is the address needed for the connection 
+     * @param remotePort is the port which the connection will be made with
+     * @param socketName name of the socket
+     */
+    private void newReturningConnection(String remoteIp, int remotePort, String socketName) 
+    {
+<span class="nc" id="L198">        lock.lock();</span>
+<span class="nc" id="L199">        SocketAgent newSocket = new SocketAgent(socketName, this, remoteIp, remotePort, true);</span>
+<span class="nc" id="L200">        newSocket.newConnection();</span>
+<span class="nc" id="L201">        lock.unlock();</span>
+<span class="nc" id="L202">    }</span>
+    
+    /**
+     * The method returns the connections on the router objections
+     * @return connections 
+     */
+    public TreeMap&lt;String, Connection&gt; getConnections()
+    {
+<span class="nc" id="L210">        return connections;</span>
+    }
+    
+    /**
+     * This method checks all the current connections for incoming messages and handles the messages
+     * Messages are handled according to their type
+     */
+    private void receiveThread()
+    {
+<span class="nc" id="L219">        pool.execute(() -&gt; {</span>
+            while(true)
+            {
+<span class="nc bnc" id="L222" title="All 2 branches missed.">                for (Map.Entry mapElement : connections.entrySet()) </span>
+                {
+<span class="nc" id="L224">                    Connection current = (Connection)mapElement.getValue();</span>
+                    try
+                    {
+<span class="nc bnc" id="L227" title="All 2 branches missed.">                        if(current.hasMessageInQueue())</span>
+                        {
+<span class="nc" id="L229">                            System.out.println(&quot;New message received over the network&quot;);</span>
+<span class="nc" id="L230">                            MsgData newMessage = current.receiveMessage();</span>
+<span class="nc bnc" id="L231" title="All 2 branches missed.">                            if(newMessage.getType() == MessageType.USER)</span>
+                            {
+<span class="nc" id="L233">                                Router.this.put(newMessage);</span>
+<span class="nc bnc" id="L234" title="All 2 branches missed.">                                if(monitor != null)</span>
+                                {
+<span class="nc" id="L236">                                    monitor.messageSent(newMessage.getHandle(), newMessage.getSender(), newMessage.getRecipient(), newMessage.getBody(), LocalDateTime.now());</span>
+                                }                                
+                                                            }
+<span class="nc bnc" id="L239" title="All 2 branches missed.">                            else if(newMessage.getType() == MessageType.ADD)</span>
+                            {
+<span class="nc" id="L241">                                Router.this.put(newMessage);</span>
+<span class="nc" id="L242">                                MetaAgentType type = getTypeFromTable(newMessage.getSender());</span>
+<span class="nc bnc" id="L243" title="All 8 branches missed.">                                if(monitor != null &amp;&amp; type != MetaAgentType.USER &amp;&amp; type != MetaAgentType.PORTAL  &amp;&amp; type != MetaAgentType.ROUTER)</span>
+                                {
+<span class="nc" id="L245">                                    monitor.agentAdded(newMessage.getRecipient(), newMessage.getSender(), routingTable.get(getHandle()).getType(),LocalDateTime.now());</span>
+                                }      
+<span class="nc" id="L247">                            }</span>
+<span class="nc bnc" id="L248" title="All 2 branches missed.">                            else if(newMessage.getType() == MessageType.REMOVE)</span>
+                            {
+<span class="nc" id="L250">                                Router.this.put(newMessage);</span>
+<span class="nc bnc" id="L251" title="All 6 branches missed.">                                if(monitor != null &amp;&amp; getTypeFromTable(newMessage.getSender()) == MetaAgentType.SOCKET || getTypeFromTable(newMessage.getSender()) == MetaAgentType.PORTAL)</span>
+                                {
+<span class="nc" id="L253">                                    monitor.agentRemoved(newMessage.getRecipient(), newMessage.getSender(), routingTable.get(getHandle()).getType(),LocalDateTime.now());</span>
+                                }     
+                            }
+                        }
+                    }
+<span class="nc" id="L258">                    catch(IOException ex)</span>
+                    {
+                        
+                    }
+<span class="nc" id="L262">                    catch(InterruptedException e)</span>
+                    {
+                        
+<span class="nc" id="L265">                    } catch (ClassNotFoundException ex) {</span>
+<span class="nc" id="L266">                        Logger.getLogger(Router.class.getName()).log(Level.SEVERE, null, ex);</span>
+<span class="nc" id="L267">                    }</span>
+<span class="nc" id="L268">                }</span>
+            }
+        });
+<span class="nc" id="L271">    }</span>
+    
+    /**
+     * This method deals with the incoming connections
+     * A connection once established will send a response to the corresponding router
+     */
+    private void acceptThread()
+    {
+<span class="fc" id="L279">        pool.execute(() -&gt; {</span>
+            //accept connections code
+            while(true)
+            {
+                //send all of its nodes through a &quot;system&quot; message 
+                try
+                {
+<span class="nc" id="L286">                    Socket newConnectionSocket = serverSocket.accept();</span>
+<span class="nc" id="L287">                    Connection newConnection = new Connection(newConnectionSocket);</span>
+<span class="nc" id="L288">                    MsgData sysMsg = newConnection.receiveMessage();</span>
+<span class="nc" id="L289">                    System.out.println(&quot;Connection request received&quot;);</span>
+<span class="nc bnc" id="L290" title="All 2 branches missed.">                    if(sysMsg.getType() == MessageType.HANDLE)</span>
+                    {
+<span class="nc" id="L292">                        String newConnectionHandle = sysMsg.getHandle(); </span>
+<span class="nc bnc" id="L293" title="All 2 branches missed.">                        if(newConnectionHandle != null)</span>
+                        {
+<span class="nc bnc" id="L295" title="All 2 branches missed.">                                if(!connections.containsKey(newConnectionHandle))</span>
+                                {
+<span class="nc" id="L297">                                    boolean alreadyConnected = true;</span>
+<span class="nc" id="L298">                                    System.out.println(sysMsg.getAgentsList().get(0));</span>
+<span class="nc bnc" id="L299" title="All 2 branches missed.">                                    for(String agentHandle : sysMsg.getAgentsList())</span>
+                                    {
+<span class="nc bnc" id="L301" title="All 2 branches missed.">                                        if(!routingTable.containsKey(agentHandle))</span>
+                                        {
+<span class="nc" id="L303">                                            System.out.println(&quot;Not connected, connecting&quot;);</span>
+<span class="nc" id="L304">                                            alreadyConnected = false;</span>
+<span class="nc" id="L305">                                            break;</span>
+                                        }    
+<span class="nc" id="L307">                                    }</span>
+<span class="nc bnc" id="L308" title="All 2 branches missed.">                                    if(!alreadyConnected)</span>
+                                    {
+<span class="nc" id="L310">                                        newConnection.setHandle(newConnectionHandle);</span>
+<span class="nc" id="L311">                                        connections.put(newConnectionHandle, newConnection);</span>
+                                        
+                                        //MONITOR NEW CONNECTION receiving
+<span class="nc bnc" id="L314" title="All 2 branches missed.">                                        if (monitor != null)</span>
+                                        {
+<span class="nc" id="L316">                                            monitor.newConnection(getHandle(), newConnectionHandle, LocalDateTime.now());</span>
+                                        }
+<span class="nc" id="L318">                                        MsgData listMessage = new MsgData(getHandle(), MessageType.LIST);</span>
+<span class="nc" id="L319">                                        listMessage.setAgentsList(getPortalHandles());</span>
+<span class="nc" id="L320">                                        newConnection.sendMessage(listMessage);</span>
+<span class="nc" id="L321">                                        newReturningConnection(sysMsg.getSender(), sysMsg.getId(), sysMsg.getHandle());</span>
+<span class="nc bnc" id="L322" title="All 2 branches missed.">                                        if(connections.size() == 1)</span>
+<span class="nc" id="L323">                                            receiveThread();</span>
+<span class="nc" id="L324">                                        continue;</span>
+                                    }
+<span class="nc" id="L326">                                }</span>
+                                else
+                                {
+<span class="nc" id="L329">                                    System.out.println(&quot;Already connected&quot;);</span>
+                                }
+                        }
+                        else
+                        {
+<span class="nc" id="L334">                            System.out.println(&quot;Invalid handle, aborting&quot;);</span>
+                        }
+<span class="nc" id="L336">                    }</span>
+<span class="nc bnc" id="L337" title="All 2 branches missed.">                    else if(sysMsg.getType() == MessageType.RETURN)</span>
+                    {
+<span class="nc" id="L339">                        newConnection.setHandle(sysMsg.getHandle());</span>
+<span class="nc" id="L340">                        connections.put(newConnection.getHandle(), newConnection);</span>
+<span class="nc bnc" id="L341" title="All 2 branches missed.">                        if (monitor != null)</span>
+                        {
+<span class="nc" id="L343">                            monitor.newConnection(getHandle(), newConnection.getHandle(), LocalDateTime.now());</span>
+                        }
+                        
+<span class="nc" id="L346">                        MsgData listMessage = new MsgData(getHandle(), MessageType.LIST);</span>
+<span class="nc" id="L347">                        listMessage.setAgentsList(getPortalHandles());</span>
+<span class="nc" id="L348">                        newConnection.sendMessage(listMessage);</span>
+<span class="nc" id="L349">                    }</span>
+                    else
+                    {
+<span class="nc" id="L352">                        System.out.println(&quot;Invalid request message, dropping connection&quot;);</span>
+<span class="nc" id="L353">                        return;</span>
+                    }
+                }
+<span class="nc" id="L356">                catch(IOException e)</span>
+                {
+<span class="nc" id="L358">                    System.out.println(&quot;Timed out in accepting&quot;);</span>
+<span class="nc" id="L359">                } catch (ClassNotFoundException ex) {</span>
+<span class="nc" id="L360">                    Logger.getLogger(Router.class.getName()).log(Level.SEVERE, null, ex);</span>
+<span class="nc" id="L361">                }</span>
+<span class="nc bnc" id="L362" title="All 2 branches missed.">                if(connections.size() == 1)</span>
+<span class="nc" id="L363">                    receiveThread();</span>
+            }
+        });
+<span class="fc" id="L366">    }</span>
+    
+    /**
+     * This method returns a list of all the connection handles in the routing table 
+     * @return list of names
+     */
+    public synchronized List&lt;String&gt; getPortalHandles()
+    {
+<span class="fc" id="L374">        List&lt;String&gt; handles = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L375">        handles.addAll(routingTable.keySet());</span>
+<span class="fc" id="L376">        return handles;</span>
+    }
+    
+    /**
+     * This method adds an agent to the router checks are made to see if they exist
+     * @param agent is the object that will be added to the router
+     * @return true or false if the agent addition is successful
+     */
+    public synchronized boolean addAgent(MetaAgent agent)
+    {
+<span class="fc" id="L386">        lock.lock();</span>
+<span class="fc bfc" id="L387" title="All 2 branches covered.">        if(routingTable.containsKey(agent.getHandle()))</span>
+        {
+<span class="fc" id="L389">            System.out.println(&quot;Agent already exists&quot;);</span>
+<span class="fc" id="L390">            lock.unlock();</span>
+<span class="fc" id="L391">            return false;</span>
+        }
+<span class="pc bpc" id="L393" title="1 of 4 branches missed.">        if(agent.getType() != MetaAgentType.PORTAL &amp;&amp; agent.getType() != MetaAgentType.SOCKET)</span>
+        {
+<span class="fc" id="L395">            System.out.println(&quot;Only portals and sockets are allowed to add on a router&quot;);</span>
+<span class="fc" id="L396">            lock.unlock();</span>
+<span class="fc" id="L397">            return false;</span>
+        }
+<span class="fc" id="L399">        routingTable.put(agent.getHandle(), agent);</span>
+<span class="fc bfc" id="L400" title="All 2 branches covered.">        if (monitor != null)</span>
+            {
+<span class="fc" id="L402">                monitor.agentAdded(this.getHandle(), agent.getHandle(),agent.getType(),LocalDateTime.now());</span>
+            }
+<span class="fc" id="L404">        agent.getRoutingTable().put(getHandle(), this);</span>
+<span class="fc bfc" id="L405" title="All 2 branches covered.">        for(Map.Entry mapElement : routingTable.entrySet())</span>
+        {
+<span class="fc" id="L407">            String key = (String)mapElement.getKey();</span>
+<span class="fc" id="L408">            MetaAgent value = (MetaAgent)mapElement.getValue();</span>
+            try {
+<span class="fc" id="L410">                agent.put(new MsgData(key, getHandle(), MessageType.ADD));</span>
+<span class="nc" id="L411">            } catch (InterruptedException ex) {</span>
+<span class="nc" id="L412">                Logger.getLogger(Router.class.getName()).log(Level.SEVERE, null, ex);</span>
+<span class="fc" id="L413">            }</span>
+<span class="fc bfc" id="L414" title="All 2 branches covered.">            if(key == value.getHandle())</span>
+            {
+                try {
+<span class="fc" id="L417">                    value.put(new MsgData(agent.getHandle(), getHandle(), MessageType.ADD));</span>
+<span class="nc" id="L418">                } catch (InterruptedException ex) {</span>
+<span class="nc" id="L419">                    System.out.println(&quot;Interrupted!&quot;);</span>
+<span class="fc" id="L420">                }</span>
+            }
+<span class="fc" id="L422">        }</span>
+<span class="fc" id="L423">        lock.unlock();</span>
+<span class="fc" id="L424">        return true;</span>
+    }
+    
+    /**
+     * Remove agent allows an agent to be removed from the Routers routing table 
+     * @param handle the name of the agent to be removed
+     */
+    public void removeAgent(String handle)
+    {
+<span class="pc bpc" id="L433" title="1 of 2 branches missed.">        if(routingTable.containsKey(handle))</span>
+        {
+<span class="fc bfc" id="L435" title="All 4 branches covered.">            if(routingTable.get(handle).getHandle() == handle &amp;&amp; routingTable.get(handle).getType() == MetaAgentType.ROUTER)</span>
+            {
+<span class="fc" id="L437">                System.out.println(&quot;Router removal is disallowed...&quot;);</span>
+<span class="fc" id="L438">                return;</span>
+            }
+<span class="pc bpc" id="L440" title="1 of 4 branches missed.">            if(routingTable.get(handle).getType() == MetaAgentType.PORTAL &amp;&amp; routingTable.get(handle).getHandle() == handle)</span>
+            {
+<span class="fc" id="L442">                Map&lt;String, MetaAgent&gt; copyMap = new ConcurrentHashMap&lt;&gt;(routingTable.get(handle).getRoutingTable());</span>
+<span class="fc bfc" id="L443" title="All 2 branches covered.">                for(Map.Entry mapElement : copyMap.entrySet())</span>
+                {
+<span class="fc" id="L445">                    String key = (String)mapElement.getKey();</span>
+<span class="fc" id="L446">                    MetaAgent value = (MetaAgent)mapElement.getValue();</span>
+<span class="fc bfc" id="L447" title="All 4 branches covered.">                    if(key == value.getHandle() &amp;&amp; value.getType() == MetaAgentType.USER)</span>
+                    {
+                        try {
+<span class="pc bpc" id="L450" title="1 of 2 branches missed.">                            if (monitor != null)</span>
+                            {
+<span class="nc" id="L452">                               monitor.agentRemoved(this.getHandle(), value.getHandle(),value.getType(),LocalDateTime.now());</span>
+                            }
+<span class="fc" id="L454">                            routingTable.get(handle).put(new MsgData(key, routingTable.get(handle).getHandle(), MessageType.REMOVE));</span>
+<span class="nc" id="L455">                        } catch (InterruptedException ex) {</span>
+<span class="nc" id="L456">                            Logger.getLogger(Router.class.getName()).log(Level.SEVERE, null, ex);</span>
+<span class="fc" id="L457">                        }</span>
+                    }
+<span class="fc" id="L459">                }</span>
+            }
+<span class="fc" id="L461">            Map&lt;String, MetaAgent&gt; copyMap = new ConcurrentHashMap&lt;&gt;(routingTable);</span>
+<span class="fc" id="L462">            MetaAgentType handleType = getTypeFromTable(handle);</span>
+<span class="fc" id="L463">            routingTable.remove(handle);</span>
+<span class="fc bfc" id="L464" title="All 2 branches covered.">            if (monitor != null)</span>
+            {
+<span class="fc" id="L466">               monitor.agentRemoved(this.getHandle(), handle,handleType,LocalDateTime.now());</span>
+            }
+<span class="fc bfc" id="L468" title="All 2 branches covered.">            for(Map.Entry mapElement : copyMap.entrySet())</span>
+            {
+<span class="fc" id="L470">                String key = (String)mapElement.getKey();</span>
+<span class="fc" id="L471">                MetaAgent value = (MetaAgent)mapElement.getValue();</span>
+<span class="fc bfc" id="L472" title="All 2 branches covered.">                if(key == value.getHandle())</span>
+                {
+                    try {
+<span class="fc" id="L475">                        value.put(new MsgData(handle, this.getHandle(), MessageType.REMOVE));</span>
+<span class="nc" id="L476">                    } catch (InterruptedException ex) {</span>
+<span class="nc" id="L477">                        Logger.getLogger(Portal.class.getName()).log(Level.SEVERE, null, ex);</span>
+<span class="fc" id="L478">                    }</span>
+                }
+<span class="fc" id="L480">            }</span>
+        }
+<span class="fc" id="L482">    }</span>
+    
+//    public void safeRemovePortal(String handle)
+//    {
+//        if(!routingTable.get(handle).getType().equals(MetaAgentType.PORTAL) || !routingTable.get(handle).getHandle().equals(handle))
+//        {
+//            System.out.println(&quot;Soft remove can be only applied on portals connected to this router&quot;);
+//            return;
+//        }
+//        List&lt;MetaAgent&gt; users = new ArrayList&lt;&gt;();
+//        Map&lt;String, MetaAgent&gt; copyMap = new ConcurrentHashMap&lt;&gt;(routingTable.get(handle).getRoutingTable());
+//        for(Map.Entry mapElement : copyMap.entrySet())
+//        {
+//            String key = (String)mapElement.getKey();
+//            MetaAgent value = (MetaAgent)mapElement.getValue();
+//            if(key == value.getHandle() &amp;&amp; value.getType() == MetaAgentType.USER)
+//            {
+//                users.add(value);
+//            }
+//        }
+//        copyMap = new ConcurrentHashMap&lt;&gt;(routingTable);
+//        routingTable.remove(handle);
+//        for(Map.Entry mapElement : copyMap.entrySet())
+//        {
+//            String key = (String)mapElement.getKey();
+//            MetaAgent value = (MetaAgent)mapElement.getValue();
+//            if(key == value.getHandle())
+//            {
+//                try {
+//                    value.put(new MsgData(handle, this.getHandle(), MessageType.SAFEREMOVE));
+//                } catch (InterruptedException ex) {
+//                    Logger.getLogger(Portal.class.getName()).log(Level.SEVERE, null, ex);
+//                }
+//            }
+//        }
+//        for(MetaAgent user : users)
+//        {
+//            int min = Integer.MAX_VALUE;
+//            copyMap = new ConcurrentHashMap&lt;&gt;(routingTable);
+//            Map&lt;String, MetaAgent&gt; minPortalMap = new ConcurrentHashMap&lt;&gt;();
+//            for(Map.Entry mapElement : copyMap.entrySet())
+//            {
+//                String key = (String)mapElement.getKey();
+//                MetaAgent value = (MetaAgent)mapElement.getValue();
+//                if(key == value.getHandle() &amp;&amp; value.getType().equals(MetaAgentType.PORTAL))
+//                {
+//                    System.out.println(value.getHandle());
+//                    if(value.getRoutingTable().size() &lt; min)
+//                    {
+//                        min = value.getRoutingTable().size();
+//                        minPortalMap = new ConcurrentHashMap&lt;&gt;(value.getRoutingTable());
+//                    }
+//                }
+//            }
+//            minPortalMap.put(user.getHandle(), user);
+//        }
+//    }
+    
+    //Portal class needs a connectToGrid(int port) to connect to a local router
+    //and connectToGrid(String address, int port) for router on a different machine
+    //both need validation for port and ip address
+    
+    //something about Portal to have waitForConnection() method to pause current thread
+    //until a connection is made so they can only send messages after connecting
+
+    /**
+     * Method to return the IP Address of the router
+     * @return string IP Address
+     */
+    public String getIpAdress() 
+    {
+<span class="fc" id="L553">        return ipAdress;</span>
+    }
+    
+    /**
+     * Method to set the monitor 
+     * @param rm is the objects router monitor
+     */
+    public void setMonitor(RouterMonitor rm)
+    {
+<span class="fc" id="L562">        monitor = rm;</span>
+<span class="fc" id="L563">    }</span>
+
+    /**
+     * Method returns the objects router monitor
+     * @return the routers monitor
+     */
+    public RouterMonitor getMonitor() 
+    {
+<span class="fc" id="L571">        return monitor;</span>
+    }
+    
+    /**
+     * This method enables retrieval of the agent type from the routing table
+     * @param handle is the name of the agent
+     * @return 
+     */
+    public MetaAgentType getTypeFromTable(String handle)
+    {
+        try
+            {
+<span class="fc bfc" id="L583" title="All 2 branches covered.">            if (routingTable.get(handle).getType() == this.getType())</span>
+            {
+<span class="fc" id="L585">                return MetaAgentType.ROUTER;</span>
+            }
+<span class="pc bpc" id="L587" title="1 of 2 branches missed.">            else if (routingTable.get(handle).getType() == MetaAgentType.SOCKET)</span>
+            {
+<span class="nc" id="L589">                return MetaAgentType.SOCKET;</span>
+            }
+<span class="fc bfc" id="L591" title="All 2 branches covered.">            else if ((routingTable.get(handle).getRoutingTable().get(handle).getType() ==  routingTable.get(handle).getType()))</span>
+            {
+<span class="fc" id="L593">                return MetaAgentType.PORTAL;</span>
+            }
+            else
+            {
+<span class="fc" id="L597">                return MetaAgentType.USER;</span>
+            }            
+        }
+<span class="nc" id="L600">        catch(Exception e)</span>
+        {
+
+        }
+<span class="nc" id="L604">        return null;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

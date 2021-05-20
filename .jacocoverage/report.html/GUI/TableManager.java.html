@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>TableManager.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCoverage analysis of project &quot;MetaAgentSubsystem&quot; (powered by JaCoCo from EclEmma)</a> &gt; <a href="index.source.html" class="el_package">GUI</a> &gt; <span class="el_source">TableManager.java</span></div><h1>TableManager.java</h1><pre class="source lang-java linenums">package GUI;
+
+/**
+ * Class of Table Manager allows creation of table objects
+ * @author Carter Ridgeway (v8265314), Chris Burrell (t7145969), Cristian Tudor (v8002382), James Carney (m2023967)
+ */
+public class TableManager 
+{
+    //Instance variable
+    RouterController gui;
+    
+    /**
+     * Constructor for Table Manager 
+     * @param rc Router Controller object
+     */
+    public TableManager(RouterController rc)
+<span class="nc" id="L17">    {</span>
+<span class="nc" id="L18">        gui = rc;</span>
+<span class="nc" id="L19">    }</span>
+    
+    /**
+     * Method to create a new row
+     * @param time time of the update
+     * @param session number
+     * @param id identification
+     * @param from name
+     * @param to name 
+     * @param msg message data 
+     */
+    public void newRow(String time, int session, int id, String from, String to, String msg)
+    {
+<span class="nc" id="L32">        gui.updateTable(time, session, id, from, to, msg);</span>
+<span class="nc" id="L33">    }</span>
+    
+    /**
+     * Method to create a new line
+     * @param line line information
+     */
+    public void newLine(String line)
+    {
+<span class="nc" id="L41">        gui.updateTab(line);</span>
+<span class="nc" id="L42">    }</span>
+    
+    /**
+     * Method to create a new line
+     * @param line line information
+     * @param time time added
+     */
+    public void newLine(String line, String time)
+    {
+<span class="nc" id="L51">        gui.updateTab(line);</span>
+<span class="nc" id="L52">    }</span>
+    
+    /**
+     * Method for display when a new router is added 
+     * @param handle name of the router
+     */
+    public void newRouter(String handle)
+    {
+<span class="nc" id="L60">        gui.addConnection(handle);</span>
+<span class="nc" id="L61">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

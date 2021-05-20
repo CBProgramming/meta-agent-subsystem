@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>SocketAgent.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCoverage analysis of project &quot;MetaAgentSubsystem&quot; (powered by JaCoCo from EclEmma)</a> &gt; <a href="index.source.html" class="el_package">metaagentsubsystem</a> &gt; <span class="el_source">SocketAgent.java</span></div><h1>SocketAgent.java</h1><pre class="source lang-java linenums">/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package metaagentsubsystem;
+
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
+import java.util.TreeMap;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import static metaagentsubsystem.MetaAgent.poolSize;
+
+/**
+ * Class SocketAgent extending metaAgent
+ * @author Carter Ridgeway (v8265314), Chris Burrell (t7145969), Cristian Tudor (v8002382), James Carney (m2023967)
+ */
+public class SocketAgent extends MetaAgent{
+    
+    //Instance Variables
+    private Connection connection; 
+    private Router router;
+    private String remoteIp;
+    private int remotePort;
+<span class="nc" id="L31">    private Object lock = new Object();</span>
+    private boolean returning;
+    
+    /**
+     * Constructor for a socketAgent which will be used for setting up connections
+     * @param handle name 
+     * @param router router assigned too the socket
+     * @param remoteIp IP Address assigned to the socket 
+     * @param remotePort is the port of assigned 
+     */
+    public SocketAgent(String handle, Router router, String remoteIp, int remotePort) 
+    {
+<span class="nc" id="L43">        super(handle);</span>
+<span class="nc" id="L44">        type = MetaAgentType.SOCKET;</span>
+<span class="nc" id="L45">        this.router = router;</span>
+<span class="nc" id="L46">        this.remoteIp = remoteIp;</span>
+<span class="nc" id="L47">        this.remotePort = remotePort;</span>
+<span class="nc" id="L48">    }</span>
+
+    /**
+     * Constructor for a socketAgent for setting up a connection on a returning socket
+     * @param handle name of the socket
+     * @param router router assigned too the socket
+     * @param remoteIp IP Address assigned to the socket
+     * @param remotePort is the port of assigned 
+     * @param returning boolean to show if returning socket is successful
+     */
+    public SocketAgent(String handle, Router router, String remoteIp, int remotePort, boolean returning) 
+    {
+<span class="nc" id="L60">        super(handle);</span>
+<span class="nc" id="L61">        type = MetaAgentType.SOCKET;</span>
+<span class="nc" id="L62">        this.router = router;</span>
+<span class="nc" id="L63">        this.remoteIp = remoteIp;</span>
+<span class="nc" id="L64">        this.remotePort = remotePort;</span>
+<span class="nc" id="L65">        this.returning = returning;</span>
+<span class="nc" id="L66">    }</span>
+    
+    /**
+     * This method establishes a new connection between routers 
+     */
+    public void newConnection() 
+    {
+<span class="nc" id="L73">        final ExecutorService pool = Executors.newFixedThreadPool(poolSize);</span>
+<span class="nc" id="L74">        pool.execute(new Runnable()</span>
+<span class="nc" id="L75">        {</span>
+            public void run() {
+                InetAddress bindAddress;
+                try
+                {
+<span class="nc" id="L80">                    bindAddress = InetAddress.getByName(remoteIp);</span>
+<span class="nc" id="L81">                    Socket socket = new Socket(bindAddress, remotePort);</span>
+<span class="nc" id="L82">                    Connection newConnection = new Connection(&quot;connection&quot;, socket);</span>
+<span class="nc" id="L83">                    MsgData helloMessage = null;</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">                    if(returning)</span>
+                    {
+<span class="nc" id="L86">                        helloMessage = new MsgData(router.getHandle(), MessageType.RETURN);</span>
+                    }
+                    else
+                    {
+<span class="nc" id="L90">                        helloMessage = new MsgData(router.getHandle(), MessageType.HANDLE);</span>
+                    } 
+<span class="nc" id="L92">                    helloMessage.setSender(router.getIpAdress());</span>
+<span class="nc" id="L93">                    helloMessage.setId(router.getPort());</span>
+<span class="nc" id="L94">                    helloMessage.setAgentsList(router.getPortalHandles());</span>
+<span class="nc" id="L95">                    newConnection.sendMessage(helloMessage);</span>
+<span class="nc" id="L96">                    int timeout = 0; //TO-DO: implement seconds timer instead</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">                    while(!newConnection.hasMessageInQueue())</span>
+                    {
+<span class="nc" id="L99">                        timeout++;</span>
+<span class="nc bnc" id="L100" title="All 2 branches missed.">                        if(timeout &gt; 10000000)</span>
+                        {
+<span class="nc" id="L102">                            System.out.println(&quot;Timed out&quot;);</span>
+<span class="nc" id="L103">                            socket.close();</span>
+<span class="nc" id="L104">                            return;</span>
+                        }
+                    }
+<span class="nc" id="L107">                    MsgData sysMsg = newConnection.receiveMessage();</span>
+<span class="nc" id="L108">                    System.out.println(sysMsg.getHandle());</span>
+<span class="nc bnc" id="L109" title="All 2 branches missed.">                    if(sysMsg.getType() == MessageType.LIST)</span>
+                    {
+<span class="nc" id="L111">                        System.out.println(&quot;MESSAGE RECEIVED BACK in &quot; + getHandle());</span>
+<span class="nc" id="L112">                        newConnection.setHandle(sysMsg.getHandle());</span>
+<span class="nc" id="L113">                        SocketAgent.this.setHandle(sysMsg.getHandle());</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">                        if(connection == null)</span>
+                        {
+<span class="nc" id="L116">                            router.getRoutingTable().put(getHandle(), SocketAgent.this);</span>
+<span class="nc bnc" id="L117" title="All 2 branches missed.">                            for(String agentHandle : sysMsg.getAgentsList())</span>
+                            {                        
+<span class="nc" id="L119">                                router.put(new MsgData(agentHandle, getHandle(), MessageType.ADD));</span>
+                                //router.msgHandler(new MsgData(agentHandle, handle, MessageType.ADD));
+<span class="nc" id="L121">                            }</span>
+<span class="nc" id="L122">                            connection = newConnection;</span>
+<span class="nc" id="L123">                            System.out.println(connection.getHandle());</span>
+                        }
+                        else
+                        {
+<span class="nc" id="L127">                            System.out.println(&quot;Already Connected!&quot;);</span>
+                        }
+                    }
+                    else
+                    {
+<span class="nc" id="L132">                        System.out.println(&quot;Incorrect message received, dropping...&quot;);</span>
+                    }
+                }
+<span class="nc" id="L135">                catch(UnknownHostException e)</span>
+                {
+                    
+                }
+<span class="nc" id="L139">                catch(IOException io)</span>
+                {
+                    
+                } 
+<span class="nc" id="L143">                catch (ClassNotFoundException ex) </span>
+                {
+                    
+<span class="nc" id="L146">                } catch (InterruptedException ex) {</span>
+<span class="nc" id="L147">                    Logger.getLogger(SocketAgent.class.getName()).log(Level.SEVERE, null, ex);</span>
+<span class="nc" id="L148">                }</span>
+<span class="nc" id="L149">            }</span>
+                    
+        }
+        );
+<span class="nc" id="L153">    }</span>
+    
+    /**
+     * Method message handles the message transmission while displaying the information
+     * @param md is the message data
+     * @throws InterruptedException throws Interrupt exception in event of an error
+     * @throws IOException throws exception 
+     */
+    @Override
+    protected void msgHandler(MsgData md) throws InterruptedException, IOException
+    {
+<span class="nc" id="L164">        System.out.println(&quot;sending to &quot; + md.getRecipient() + &quot; and am currently at socket &quot; + getHandle());</span>
+<span class="nc" id="L165">        connection.sendMessage(md);</span>
+<span class="nc" id="L166">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

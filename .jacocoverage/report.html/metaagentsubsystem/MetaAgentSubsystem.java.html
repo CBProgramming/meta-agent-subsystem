@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>MetaAgentSubsystem.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCoverage analysis of project &quot;MetaAgentSubsystem&quot; (powered by JaCoCo from EclEmma)</a> &gt; <a href="index.source.html" class="el_package">metaagentsubsystem</a> &gt; <span class="el_source">MetaAgentSubsystem.java</span></div><h1>MetaAgentSubsystem.java</h1><pre class="source lang-java linenums">package metaagentsubsystem;
+
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.util.Map;
+import javax.swing.JFrame;
+import java.util.TreeMap;
+
+/**
+ * Test Harness Class 
+ * @author Carter Ridgeway (v8265314), Chris Burrell (t7145969), Cristian Tudor (v8002382), James Carney (m2023967)
+ */
+<span class="nc" id="L13">public class MetaAgentSubsystem </span>
+{
+
+    /**
+     * Main Method to run the test harness
+     * @param args the command line arguments
+     * @throws java.lang.InterruptedException
+     * @throws java.io.IOException
+     * @throws java.lang.IllegalAccessException
+     * @throws java.lang.NoSuchFieldException
+     */
+    public static void main(String[] args) throws InterruptedException, IOException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException
+    {
+   
+        Router r1;
+        Portal p1, p2;
+        UserAgent u1, u2, u3, u4;
+        
+<span class="nc" id="L31">        r1 = Router.createNew(&quot;r1&quot;);</span>
+<span class="nc" id="L32">        p1 = new Portal(&quot;p1&quot;,r1);</span>
+<span class="nc" id="L33">        u1 = new UserAgent(&quot;u1&quot;, p1);</span>
+<span class="nc" id="L34">        u2 = new UserAgent(&quot;u2&quot;, p1);</span>
+<span class="nc" id="L35">        p2 = new Portal(&quot;p2&quot;,r1);</span>
+<span class="nc" id="L36">        u3 = new UserAgent(&quot;u3&quot;, p2);</span>
+<span class="nc" id="L37">        u4 = new UserAgent(&quot;u4&quot;, p2);</span>
+<span class="nc" id="L38">        u1.sendMessage(&quot;u3&quot;, &quot;heya&quot;);</span>
+<span class="nc" id="L39">        Thread.sleep(5000);</span>
+<span class="nc" id="L40">        p2.removeAgent(&quot;p1&quot;);</span>
+<span class="nc" id="L41">        Thread.sleep(2000);</span>
+<span class="nc" id="L42">        System.out.println(&quot;&quot;);</span>
+<span class="nc" id="L43">        System.out.println(r1.getHandle());</span>
+<span class="nc bnc" id="L44" title="All 2 branches missed.">        for(Map.Entry&lt;String, MetaAgent&gt; set : r1.getRoutingTable().entrySet())</span>
+        {
+<span class="nc" id="L46">            System.out.println(set.getKey() + &quot; &quot; + set.getValue().getHandle());</span>
+<span class="nc" id="L47">        }</span>
+<span class="nc" id="L48">        System.out.println(&quot;&quot;);</span>
+<span class="nc" id="L49">        System.out.println(p1.getHandle());</span>
+<span class="nc bnc" id="L50" title="All 2 branches missed.">        for(Map.Entry&lt;String, MetaAgent&gt; set : p1.getRoutingTable().entrySet())</span>
+        {
+<span class="nc" id="L52">            System.out.println(set.getKey() + &quot; &quot; + set.getValue().getHandle());</span>
+<span class="nc" id="L53">        }</span>
+<span class="nc" id="L54">        System.out.println(&quot;&quot;);</span>
+<span class="nc" id="L55">        System.out.println(p2.getHandle());</span>
+<span class="nc bnc" id="L56" title="All 2 branches missed.">        for(Map.Entry&lt;String, MetaAgent&gt; set : p2.getRoutingTable().entrySet())</span>
+        {
+<span class="nc" id="L58">            System.out.println(set.getKey() + &quot; &quot; + set.getValue().getHandle());</span>
+<span class="nc" id="L59">        }</span>
+   
+<span class="nc" id="L61">    }</span>
+    
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

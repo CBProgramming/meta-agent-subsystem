@@ -1,0 +1,4 @@
+Message sent to: ¶»¤u8	Sender: ¶»¤u1	Passed to: ¶»¤p1	Time sent: ¶»¤2020-01-05T18:05:54.993	Message body: ¶»¤Hi u8
+Message forwarded from router to external user: ¶»¤u8	Sender: ¶»¤u1	Time sent: ¶»¤2020-01-05T18:05:54.993	Message body: ¶»¤Hi u8
+Message received in local router from external user: ¶»¤u6	Recipient: ¶»¤u3	Time sent: ¶»¤2020-01-05T18:05:55.593	Message body: ¶»¤Hi u3
+Message received from: ¶»¤u6	Recipient: ¶»¤u3	Delivered by: ¶»¤p2	Time received: ¶»¤2020-01-05T18:05:55.593	Message body: ¶»¤Hi u3

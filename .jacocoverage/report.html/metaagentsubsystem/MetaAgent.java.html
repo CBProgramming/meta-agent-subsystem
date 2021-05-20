@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>MetaAgent.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCoverage analysis of project &quot;MetaAgentSubsystem&quot; (powered by JaCoCo from EclEmma)</a> &gt; <a href="index.source.html" class="el_package">metaagentsubsystem</a> &gt; <span class="el_source">MetaAgent.java</span></div><h1>MetaAgent.java</h1><pre class="source lang-java linenums">package metaagentsubsystem;
+
+import java.io.IOException;
+import java.util.TreeMap;
+import java.util.Vector;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+/**
+ * MetaAgent Class extends LinkBlockingQueue which consists of objects of type MsgData.
+ * @author Carter Ridgeway (v8265314), Chris Burrell (t7145969), Cristian Tudor (v8002382), James Carney (m2023967)
+ */
+public class MetaAgent extends LinkedBlockingQueue&lt;MsgData&gt; 
+{
+    /**
+     * Class instance variables
+     */
+    public static int sessionCount; 
+    protected String handle; 
+    protected final ExecutorService pool;
+    /**
+     * Size of the executor service pool
+     */
+<span class="fc" id="L27">    public static int poolSize = 50;</span>
+    /**
+     * Size of the LinkedBlockingQueue
+     */
+<span class="fc" id="L31">    public static int queueSize = Integer.MAX_VALUE;</span>
+    protected MetaAgentType type;
+
+    /**
+     * This method is used to get the type of the MetaAgent
+     * @return the MetaAgentType of the object
+     */
+    public MetaAgentType getType() {
+<span class="fc" id="L39">        return type;</span>
+    }
+    
+    /**
+     * This Constructor calls the superclass, then creates an Executor Service with a fixed thread size.
+     */
+    public MetaAgent()
+    {
+<span class="fc" id="L47">        super(queueSize);</span>
+<span class="fc" id="L48">        pool = Executors.newFixedThreadPool(poolSize);</span>
+<span class="fc" id="L49">    }</span>
+    
+    /**
+     * This Constructor calls the superclass, the creates a Executor Service with a fixed thread size
+     * @param handle is the handle of the agent
+     */
+    public MetaAgent(String handle)
+    {
+<span class="fc" id="L57">        super(queueSize);</span>
+<span class="fc" id="L58">        this.handle = handle;</span>
+<span class="fc" id="L59">        pool = Executors.newFixedThreadPool(poolSize);</span>
+<span class="fc" id="L60">        startHandleThread();</span>
+<span class="fc" id="L61">    }</span>
+    
+    /**
+     * This method is used for handling an user message
+     * @param md is the MsgData to be handled
+     * @throws InterruptedException - error handler
+     * @throws IOException - error handler
+     */
+    protected void msgHandler(MsgData md) throws InterruptedException, IOException
+    {
+<span class="fc" id="L71">        System.out.println(md.toString());</span>
+<span class="fc" id="L72">    }</span>
+    
+    /**
+     * Method used for removing connections, used in UserAgents
+     */
+    public void removeConnections()
+    {
+<span class="fc" id="L79">        return;</span>
+    }
+    
+    /**
+     * Method created to set the name of the MetaAgent
+     * @param handle is the name 
+     */
+    public void setHandle(String handle) {
+<span class="nc" id="L87">        this.handle = handle;</span>
+<span class="nc" id="L88">    }</span>
+    
+    /**
+     * This method handles the linked blocking queue, any errors are picked up an dealt with.
+     * It continuously takes messages from the queue and passes them to the message handler
+     */
+    private void startHandleThread()
+    {
+<span class="fc" id="L96">        pool.execute(new Runnable()</span>
+<span class="fc" id="L97">        {</span>
+            public void run()
+            {
+                try 
+                {
+                    while(true)
+                    {
+<span class="fc" id="L104">                        MsgData msg = MetaAgent.this.take();</span>
+<span class="pc bpc" id="L105" title="1 of 2 branches missed.">                        if(msg != null)</span>
+                        {
+<span class="fc" id="L107">                            msgHandler(msg);</span>
+                        }
+                        else
+                        {
+<span class="nc" id="L111">                            System.out.println(&quot;Null object in the queue of &quot; + handle + &quot;, aborting...&quot;);</span>
+                        }
+<span class="fc" id="L113">                    }</span>
+<span class="nc" id="L114">                } catch (InterruptedException ex) {</span>
+<span class="nc" id="L115">                    System.out.println(&quot;MetaAgent &quot; + handle + &quot; has been interrupted&quot;);</span>
+<span class="nc" id="L116">                    return;</span>
+<span class="nc" id="L117">                } catch (IOException ex) {</span>
+<span class="nc" id="L118">                    System.out.println(&quot;IOException in &quot; + handle);</span>
+                }
+<span class="nc" id="L120">            }</span>
+        });
+<span class="fc" id="L122">    }</span>
+    
+    /**
+     * Method handles the termination of a thread
+     * @throws InterruptedException when the thread is interrupted
+     */
+    public void terminateThread() throws InterruptedException
+    {
+<span class="fc" id="L130">        pool.shutdown();</span>
+<span class="fc" id="L131">    }</span>
+    
+    /**
+     * Method returns the name of the MetaAgent
+     * @return the name
+     */
+    public String getHandle() 
+    {
+<span class="fc" id="L139">        return handle;</span>
+    }
+
+    /**
+     * Method is created to allow child objects display their routing tables
+     * @return null as this is not used in the super class
+     */
+    public TreeMap&lt;String, MetaAgent&gt; getRoutingTable()
+    {
+<span class="fc" id="L148">        System.out.println(&quot;Agent does not have a routing table&quot;);</span>
+<span class="fc" id="L149">        return null;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>MsgWindow.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCoverage analysis of project &quot;MetaAgentSubsystem&quot; (powered by JaCoCo from EclEmma)</a> &gt; <a href="index.source.html" class="el_package">GUI</a> &gt; <span class="el_source">MsgWindow.java</span></div><h1>MsgWindow.java</h1><pre class="source lang-java linenums">package GUI;
+
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Vector;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.table.DefaultTableModel;
+import metaagentsubsystem.UserAgent;
+
+/**
+ * GUI Creation class for a message window object
+ * @author Carter Ridgeway (v8265314), Chris Burrell (t7145969), Cristian Tudor (v8002382), James Carney (m2023967)  
+ */
+public class MsgWindow extends JFrame
+{
+    //instance variables 
+    UserAgent user;
+    
+    JPanel windowPanel;
+    
+    JTable msgTable;
+    
+    JScrollPane msgScrollPane;
+    
+    JPanel msgFunctionPanel;
+    
+    JLabel recipientLabel;
+    JLabel msgLabel;
+    
+    JTextField recipientTextField;
+    JTextField msgTextField;
+    
+    JButton sendButton;
+    JButton clearButton;
+    
+    /**
+     * Constructor for the message window
+     * @param title name
+     * @param user user agent object
+     */
+    public MsgWindow(String title, UserAgent user)
+    {
+<span class="nc" id="L52">        super(title);</span>
+<span class="nc" id="L53">        this.setResizable(false);</span>
+        
+<span class="nc" id="L55">        this.user = user;</span>
+        
+<span class="nc" id="L57">        windowPanel = new JPanel();</span>
+<span class="nc" id="L58">        windowPanel.setLayout(new BoxLayout(windowPanel, BoxLayout.Y_AXIS));</span>
+<span class="nc" id="L59">        this.add(windowPanel);</span>
+        
+<span class="nc" id="L61">        String[] columnNames = {&quot;Time&quot;, &quot;From&quot;, &quot;To&quot;, &quot;Message&quot;};</span>
+<span class="nc" id="L62">        DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0);</span>
+<span class="nc" id="L63">        msgTable = new JTable(tableModel);</span>
+        
+<span class="nc" id="L65">        msgTable.setEnabled(false);</span>
+<span class="nc" id="L66">        msgTable.getTableHeader().setReorderingAllowed(false);</span>
+        
+<span class="nc" id="L68">        msgScrollPane = new JScrollPane(msgTable); </span>
+<span class="nc" id="L69">        windowPanel.add(msgScrollPane);</span>
+        
+<span class="nc" id="L71">        msgFunctionPanel = new JPanel();</span>
+<span class="nc" id="L72">        msgFunctionPanel.setLayout(new GridBagLayout());</span>
+<span class="nc" id="L73">        windowPanel.add(msgFunctionPanel);</span>
+        
+<span class="nc" id="L75">        GridBagConstraints gbc = new GridBagConstraints();</span>
+        
+<span class="nc" id="L77">        recipientLabel = new JLabel(&quot;  Recipient&quot;);</span>
+<span class="nc" id="L78">        gbc.fill = GridBagConstraints.HORIZONTAL;</span>
+<span class="nc" id="L79">        gbc.gridx = 0;</span>
+<span class="nc" id="L80">        gbc.gridy = 0;</span>
+<span class="nc" id="L81">        msgFunctionPanel.add(recipientLabel, gbc);</span>
+        
+<span class="nc" id="L83">        msgLabel = new JLabel(&quot;  Message&quot;);</span>
+<span class="nc" id="L84">        gbc.gridx = 1;</span>
+<span class="nc" id="L85">        gbc.gridy = 0;</span>
+<span class="nc" id="L86">        msgFunctionPanel.add(msgLabel, gbc);</span>
+        
+<span class="nc" id="L88">        clearButton = new JButton(&quot;Clear&quot;);</span>
+<span class="nc" id="L89">        clearButton.addActionListener(new ActionListener()</span>
+<span class="nc" id="L90">        {</span>
+            public void actionPerformed(ActionEvent e)
+            {
+<span class="nc" id="L93">                DefaultTableModel tableModel = (DefaultTableModel) msgTable.getModel();</span>
+<span class="nc" id="L94">                tableModel.setRowCount(0);</span>
+<span class="nc" id="L95">            }</span>
+        });
+<span class="nc" id="L97">        gbc.gridx = 2;</span>
+<span class="nc" id="L98">        gbc.gridy = 0;</span>
+<span class="nc" id="L99">        msgFunctionPanel.add(clearButton, gbc);</span>
+        
+<span class="nc" id="L101">        recipientTextField = new JTextField(7);</span>
+<span class="nc" id="L102">        gbc.gridx = 0;</span>
+<span class="nc" id="L103">        gbc.gridy = 1;</span>
+<span class="nc" id="L104">        msgFunctionPanel.add(recipientTextField, gbc);</span>
+        
+<span class="nc" id="L106">        msgTextField = new JTextField(20);</span>
+<span class="nc" id="L107">        gbc.gridx = 1;</span>
+<span class="nc" id="L108">        gbc.gridy = 1;</span>
+<span class="nc" id="L109">        msgFunctionPanel.add(msgTextField, gbc);</span>
+        
+<span class="nc" id="L111">        sendButton = new JButton(&quot;Send&quot;);</span>
+<span class="nc" id="L112">        sendButton.addActionListener(new ActionListener()</span>
+<span class="nc" id="L113">        {</span>
+            public void actionPerformed(ActionEvent e)
+            {
+<span class="nc" id="L116">                user.sendMessage(recipientTextField.getText(), msgTextField.getText());</span>
+<span class="nc" id="L117">                System.out.println(&quot;Carter Test Point a&quot;);</span>
+<span class="nc" id="L118">                msgTextField.setText(&quot;&quot;);</span>
+<span class="nc" id="L119">            }</span>
+        });
+<span class="nc" id="L121">        gbc.gridx = 2;</span>
+<span class="nc" id="L122">        gbc.gridy = 1;</span>
+<span class="nc" id="L123">        msgFunctionPanel.add(sendButton, gbc);</span>
+<span class="nc" id="L124">    }</span>
+    
+    /**
+     * Creation method for a new message
+     * @param time time of message
+     * @param from sender
+     * @param to recipient
+     * @param msg message data
+     */
+    public void newMsg(String time, String from, String to, String msg)
+    {
+<span class="nc" id="L135">        String[] rowData = {time, from, to, msg};</span>
+        
+<span class="nc" id="L137">        DefaultTableModel tableModel = (DefaultTableModel) msgTable.getModel();</span>
+<span class="nc" id="L138">        tableModel.addRow(rowData);</span>
+<span class="nc" id="L139">        msgTable.repaint();</span>
+<span class="nc" id="L140">    }</span>
+    
+    /**
+     * method to terminate the message window
+     */
+    public void terminate()
+    {
+<span class="nc" id="L147">        dispose();</span>
+<span class="nc" id="L148">    }</span>
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

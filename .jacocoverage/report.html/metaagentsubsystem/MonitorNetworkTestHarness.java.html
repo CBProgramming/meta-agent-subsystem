@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>MonitorNetworkTestHarness.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCoverage analysis of project &quot;MetaAgentSubsystem&quot; (powered by JaCoCo from EclEmma)</a> &gt; <a href="index.source.html" class="el_package">metaagentsubsystem</a> &gt; <span class="el_source">MonitorNetworkTestHarness.java</span></div><h1>MonitorNetworkTestHarness.java</h1><pre class="source lang-java linenums">package metaagentsubsystem;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.net.InetAddress;
+import java.util.Map;
+
+/**
+ * Test Harness Class for testing Monitor Network
+ * @author Carter Ridgeway (v8265314), Chris Burrell (t7145969), Cristian Tudor (v8002382), James Carney (m2023967)
+ */
+<span class="nc" id="L15">public class MonitorNetworkTestHarness </span>
+{
+  
+        /**
+     * @param args the command line arguments
+     * @throws java.lang.InterruptedException
+     * @throws java.io.IOException
+     * @throws java.lang.IllegalAccessException
+     * @throws java.lang.NoSuchFieldException
+     */
+    public static void main(String[] args) throws InterruptedException, IOException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException
+    {
+<span class="nc" id="L27">        resetFile(&quot;system_log.txt&quot;);</span>
+<span class="nc" id="L28">        resetFile(&quot;user_log.txt&quot;);</span>
+<span class="nc" id="L29">        int sleepTime = 500;</span>
+<span class="nc" id="L30">        FileManager sysFm = new FileManager(&quot;system_log.txt&quot;);</span>
+<span class="nc" id="L31">        FileManager userFm = new FileManager(&quot;user_log.txt&quot;);</span>
+<span class="nc" id="L32">        DefaultPortalMonitor p1mon = new DefaultPortalMonitor(sysFm,userFm);</span>
+<span class="nc" id="L33">        DefaultRouterMonitor r1mon = new DefaultRouterMonitor(sysFm,userFm);</span>
+<span class="nc" id="L34">        DefaultPortalMonitor p2mon = new DefaultPortalMonitor(sysFm,userFm);</span>
+        
+<span class="nc" id="L36">        resetRouter();</span>
+<span class="nc" id="L37">        Router r1 = Router.createNew(&quot;r1&quot;);</span>
+<span class="nc" id="L38">        r1.setMonitor(r1mon);</span>
+<span class="nc" id="L39">        Portal p1 = new Portal(&quot;p1&quot;,r1);</span>
+<span class="nc" id="L40">        p1.setMonitor(p1mon);</span>
+<span class="nc" id="L41">        UserAgent u1 = new UserAgent(&quot;u1&quot;, p1);</span>
+        //UserAgent u2 = new UserAgent(&quot;u2&quot;, p1);
+<span class="nc" id="L43">        Portal p2 = new Portal(&quot;p2&quot;,r1);</span>
+<span class="nc" id="L44">        p2.setMonitor(p2mon);</span>
+<span class="nc" id="L45">        UserAgent u3 = new UserAgent(&quot;u3&quot;, p2);</span>
+<span class="nc" id="L46">        UserAgent u4 = new UserAgent(&quot;u4&quot;, p2);</span>
+<span class="nc" id="L47">        resetRouter();</span>
+<span class="nc" id="L48">        Router r2 = Router.createNew(&quot;r2&quot;);</span>
+<span class="nc" id="L49">        Portal p3 = new Portal(&quot;p3&quot;,r2);</span>
+<span class="nc" id="L50">        UserAgent u5 = new UserAgent(&quot;u5&quot;, p3);</span>
+<span class="nc" id="L51">        UserAgent u6 = new UserAgent(&quot;u6&quot;, p3);</span>
+<span class="nc" id="L52">        Portal p4 = new Portal(&quot;p4&quot;,r2);</span>
+        
+<span class="nc" id="L54">        UserAgent u8 = new UserAgent(&quot;u8&quot;, p4);</span>
+<span class="nc" id="L55">        Thread.sleep(sleepTime);</span>
+        
+<span class="nc" id="L57">        r1.advertiseConnection(8000);</span>
+<span class="nc" id="L58">        r2.advertiseConnection(9000);</span>
+<span class="nc" id="L59">        r2.newConnection(InetAddress.getLocalHost().getHostAddress().trim(), 8000);</span>
+<span class="nc" id="L60">        Thread.sleep(sleepTime);</span>
+        
+        
+<span class="nc" id="L63">        u1.sendMessage(&quot;u8&quot;, &quot;Hi u8&quot;);</span>
+<span class="nc" id="L64">        Thread.sleep(sleepTime);</span>
+<span class="nc" id="L65">        u6.sendMessage(&quot;u3&quot;, &quot;Hi u3&quot;);</span>
+        
+<span class="nc" id="L67">        UserAgent u7 = new UserAgent(&quot;u7&quot;, p4);</span>
+<span class="nc" id="L68">        UserAgent u2 = new UserAgent(&quot;u2&quot;, p1);</span>
+<span class="nc" id="L69">        Thread.sleep(1000);</span>
+<span class="nc" id="L70">        r1.removeAgent(&quot;u1&quot;);</span>
+<span class="nc" id="L71">        Thread.sleep(1000);</span>
+<span class="nc" id="L72">        r2.removeAgent(&quot;u8&quot;);</span>
+
+<span class="nc" id="L74">    }</span>
+    
+    /**
+     * Method used for reseting the router variables
+     * @throws java.lang.NoSuchFieldException
+     * @throws java.lang.IllegalAccessException
+     */
+    public static void resetRouter() throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException
+    {
+<span class="nc" id="L83">        Field instance = Router.class.getDeclaredField(&quot;instance&quot;);</span>
+<span class="nc" id="L84">        instance.setAccessible(true);</span>
+<span class="nc" id="L85">        instance.set(null, null); </span>
+<span class="nc" id="L86">    }</span>
+    
+    /**
+     * Method used for testing in the harness
+     * @param fileName name of of the file
+     */
+    public static void resetFile(String fileName) 
+    {
+<span class="nc" id="L94">        File file = new File(fileName);</span>
+        try 
+        {
+<span class="nc" id="L97">            final BufferedWriter bw = new BufferedWriter(new FileWriter(file, false));</span>
+<span class="nc" id="L98">            bw.write(&quot;&quot;);</span>
+<span class="nc" id="L99">            bw.close();</span>
+        } 
+<span class="nc" id="L101">        catch (IOException e) </span>
+        {
+<span class="nc" id="L103">            System.err.println(&quot;Something went wrong restting the file&quot;);</span>
+<span class="nc" id="L104">        }</span>
+<span class="nc" id="L105">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

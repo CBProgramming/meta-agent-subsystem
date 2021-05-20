@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>StressTest.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCoverage analysis of project &quot;MetaAgentSubsystem&quot; (powered by JaCoCo from EclEmma)</a> &gt; <a href="index.source.html" class="el_package">metaagentsubsystem</a> &gt; <span class="el_source">StressTest.java</span></div><h1>StressTest.java</h1><pre class="source lang-java linenums">package metaagentsubsystem;
+
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import javax.swing.JFrame;
+import java.util.TreeMap;
+
+/**
+ * Test Harness created to carry out stress testing on the system
+ * @author Carter Ridgeway (v8265314), Chris Burrell (t7145969), Cristian Tudor (v8002382), James Carney (m2023967)
+ */
+<span class="nc" id="L16">public class StressTest </span>
+{
+
+    /**
+     * Main Method for stress tesing harness
+     * @param args the command line arguments
+     * @throws java.lang.InterruptedException
+     * @throws java.io.IOException
+     * @throws java.lang.IllegalAccessException
+     * @throws java.lang.NoSuchFieldException
+     */
+    public static void main(String[] args) throws InterruptedException, IOException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException
+    {
+<span class="nc" id="L29">        int totalPortals = 100;</span>
+<span class="nc" id="L30">        int agentsPerPortal = 5;</span>
+<span class="nc" id="L31">        int totalMessages = 100;</span>
+<span class="nc" id="L32">        int agentsToRemove = 100;</span>
+<span class="nc" id="L33">        int portalsToRemove = 10;</span>
+<span class="nc" id="L34">        Router r0 = Router.createNew(&quot;r0&quot;);</span>
+<span class="nc" id="L35">        int portalCount = 0;</span>
+<span class="nc" id="L36">        int userCount = 0;</span>
+<span class="nc" id="L37">        List&lt;Portal&gt; portalList = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L38">        List&lt;UserAgent&gt; agentList = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L39">        List&lt;String&gt; deletedAgents = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L40">        List&lt;String&gt; deletedPortals = new ArrayList&lt;&gt;();</span>
+        
+<span class="nc bnc" id="L42" title="All 2 branches missed.">        for(int i = 0; i &lt; totalPortals; i++)</span>
+        {
+<span class="nc" id="L44">            Portal newPortal = new Portal(&quot;p&quot; + portalCount++, r0);</span>
+<span class="nc" id="L45">            portalList.add(newPortal);</span>
+<span class="nc bnc" id="L46" title="All 2 branches missed.">            for(int j = 0; j &lt; agentsPerPortal; j++)</span>
+            {
+<span class="nc" id="L48">                UserAgent newUser = new UserAgent(&quot;u&quot; + userCount++, newPortal);</span>
+<span class="nc" id="L49">                agentList.add(newUser);</span>
+            }
+        }
+<span class="nc" id="L52">        Random r = new Random();</span>
+        
+<span class="nc bnc" id="L54" title="All 2 branches missed.">        for(int i = 0; i &lt; totalMessages; i++)</span>
+        {
+<span class="nc" id="L56">            int randSender = r.nextInt(userCount);</span>
+<span class="nc" id="L57">            int randReceiver = r.nextInt(userCount);</span>
+<span class="nc" id="L58">            agentList.get(randSender).sendMessage(&quot;u&quot; + randReceiver, &quot;HI THERE, u&quot; + randReceiver + &quot;, THIS IS u&quot; + randSender + &quot;!&quot;);</span>
+        }
+        
+<span class="nc bnc" id="L61" title="All 2 branches missed.">        for(int i = 0; i &lt; totalMessages; i++)</span>
+        {
+<span class="nc" id="L63">            agentList.get(i).sendMessage(&quot;u&quot; + (totalMessages - i), &quot;HI THERE, u&quot; + (totalMessages - i) + &quot;, THIS IS u&quot; + i + &quot;!&quot;);</span>
+        }
+<span class="nc" id="L65">        Thread.sleep(10000);</span>
+<span class="nc bnc" id="L66" title="All 2 branches missed.">        for(int i = 0; i &lt; agentsToRemove; i++)</span>
+        {
+<span class="nc" id="L68">            int randAgent = r.nextInt(userCount);</span>
+<span class="nc" id="L69">            deletedAgents.add(&quot;u&quot; + randAgent);</span>
+<span class="nc" id="L70">            r0.removeAgent(&quot;u&quot; + randAgent);</span>
+<span class="nc" id="L71">            agentList.remove(randAgent);</span>
+<span class="nc" id="L72">            userCount--;</span>
+        }
+<span class="nc" id="L74">        Thread.sleep(10000);</span>
+<span class="nc bnc" id="L75" title="All 2 branches missed.">        for(int i = 0; i &lt; portalsToRemove; i++)</span>
+        {
+<span class="nc" id="L77">            int randPortal = r.nextInt(portalCount);</span>
+<span class="nc" id="L78">            deletedPortals.add(&quot;p&quot; + randPortal);</span>
+            /*
+            for(String user : portalList.get(randPortal).getAllUsers())
+            {
+                agentList.remove(Integer.parseInt(user.substring(1)));
+                userCount--;
+                deletedAgents.add(user);
+            }
+            */
+<span class="nc" id="L87">            r0.removeAgent(&quot;p&quot; + randPortal);</span>
+<span class="nc" id="L88">            portalList.remove(randPortal);</span>
+<span class="nc" id="L89">            portalCount--;</span>
+        }
+<span class="nc" id="L91">        Thread.sleep(10000);</span>
+<span class="nc" id="L92">        System.out.println(&quot;&quot;);</span>
+<span class="nc" id="L93">        System.out.println(&quot;Router routing table:&quot;);</span>
+<span class="nc bnc" id="L94" title="All 2 branches missed.">        for(Map.Entry&lt;String, MetaAgent&gt; set : r0.getRoutingTable().entrySet())</span>
+        {
+<span class="nc bnc" id="L96" title="All 4 branches missed.">            if(deletedAgents.contains(set.getKey()) || deletedPortals.contains(set.getKey()))</span>
+<span class="nc" id="L97">                System.out.println(&quot;AGENT &quot; + set.getKey() + &quot; SHOULD BE DELETED&quot;);</span>
+<span class="nc" id="L98">            System.out.println(set.getKey() + &quot; &quot; + set.getValue().getHandle());</span>
+<span class="nc" id="L99">        }</span>
+
+<span class="nc" id="L101">    }</span>
+    
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

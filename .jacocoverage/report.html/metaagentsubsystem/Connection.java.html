@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>Connection.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCoverage analysis of project &quot;MetaAgentSubsystem&quot; (powered by JaCoCo from EclEmma)</a> &gt; <a href="index.source.html" class="el_package">metaagentsubsystem</a> &gt; <span class="el_source">Connection.java</span></div><h1>Connection.java</h1><pre class="source lang-java linenums">package metaagentsubsystem;
+
+import com.protos.MsgDataProtos;
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.net.Socket;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Connection Class used to encapsulate sockets and facilitate sending and receiving messages over the network
+ * @author Group B, Carter Ridgeway (v8265314), Chris Burrell (t7145969), Cristian Tudor (v8002382), James Carney (m2023967)
+ */
+public class Connection {
+    
+    /**
+     * Class Instance Variables 
+     */
+    private String handle; // might not need this
+    private Socket socket;
+    private InputStream networkStream;
+    private ObjectInputStream networkSerializedReader;
+    private ObjectOutputStream networkSerializedWriter;
+    private InputStreamReader networkReader;
+    private DataOutputStream byteOut;
+    private OutputStream out;
+    private DataInputStream byteIn;
+    private BufferedReader networkBufferedReader;
+    private PrintWriter networkWriter;
+    
+    
+    /**
+     * Constructor for Connection class 
+     * @param socket a socket is needed as a parameter
+     * @throws IOException if anything is incorrect error is thrown
+     */
+    Connection(Socket socket) throws IOException
+    {
+<span class="nc" id="L49">        this(null, socket);</span>
+<span class="nc" id="L50">    }</span>
+    
+    /**
+     * Constructor for Connection method initialises all the necessary objects
+     * used in sending and receiving messages.
+     * @param handle name given to the connection
+     * @param socket a socket is needed as a parameter
+     * @throws IOException if anything is incorrect error is thrown
+     */
+    Connection(String handle, Socket socket) throws IOException
+<span class="nc" id="L60">    {</span>
+<span class="nc" id="L61">        this.handle = handle;</span>
+<span class="nc" id="L62">        this.socket = socket;</span>
+<span class="nc" id="L63">        networkStream = this.socket.getInputStream();</span>
+        //networkSerializedWriter = new ObjectOutputStream(socket.getOutputStream());
+        //networkSerializedWriter.flush();
+<span class="nc" id="L66">        byteOut = new DataOutputStream(socket.getOutputStream());</span>
+<span class="nc" id="L67">        byteOut.flush();</span>
+        //networkSerializedReader = new ObjectInputStream(socket.getInputStream());
+<span class="nc" id="L69">        byteIn = new DataInputStream(socket.getInputStream());</span>
+//        networkReader = new InputStreamReader(networkStream);
+//        networkBufferedReader = new BufferedReader(networkReader);
+<span class="nc" id="L72">        out = this.socket.getOutputStream();</span>
+<span class="nc" id="L73">        networkWriter = new PrintWriter(this.socket.getOutputStream(), true);</span>
+<span class="nc" id="L74">    }</span>
+    
+    /**
+     * Sends a MsgData over the network.
+     * It encapsulates the message in a MsgDataProtos, turns it into a byte array and sends it over the network
+     * @param msg is of type MsgData and includes the message data and information
+     * @throws IOException 
+     */
+    public void sendMessage(MsgData msg) throws IOException
+    {
+<span class="nc" id="L84">        MsgDataProtos.MsgData.Builder message = com.protos.MsgDataProtos.MsgData.newBuilder();</span>
+<span class="nc bnc" id="L85" title="All 2 branches missed.">        message.setSender(msg.getSender() == null ? &quot;&quot; : msg.getSender());</span>
+<span class="nc bnc" id="L86" title="All 2 branches missed.">        message.setRecipient(msg.getRecipient() == null ? &quot;&quot; : msg.getRecipient());</span>
+<span class="nc bnc" id="L87" title="All 2 branches missed.">        message.setMsgId(msg.getId() == 0 ? -1 : msg.getId());</span>
+<span class="nc bnc" id="L88" title="All 2 branches missed.">        message.setBody(msg.getBody() == null ? &quot;&quot; : msg.getBody());</span>
+<span class="nc bnc" id="L89" title="All 7 branches missed.">        switch(msg.getType())</span>
+        {
+            case ADD:
+<span class="nc" id="L92">                message.setType(MsgDataProtos.MsgData.Type.ADD);</span>
+<span class="nc" id="L93">                break;</span>
+            case REMOVE:
+<span class="nc" id="L95">                message.setType(MsgDataProtos.MsgData.Type.REMOVE);</span>
+<span class="nc" id="L96">                break;</span>
+            case LIST:
+<span class="nc" id="L98">                message.setType(MsgDataProtos.MsgData.Type.LIST);</span>
+<span class="nc" id="L99">                break;</span>
+            case HANDLE:
+<span class="nc" id="L101">                message.setType(MsgDataProtos.MsgData.Type.HANDLE);</span>
+<span class="nc" id="L102">                break;  </span>
+            case USER:
+<span class="nc" id="L104">                message.setType(MsgDataProtos.MsgData.Type.USER);</span>
+<span class="nc" id="L105">                break;    </span>
+            case RETURN:
+<span class="nc" id="L107">                message.setType(MsgDataProtos.MsgData.Type.RETURN);</span>
+<span class="nc" id="L108">                break;</span>
+            default:
+<span class="nc" id="L110">                message.setType(MsgDataProtos.MsgData.Type.USER);</span>
+        }        
+<span class="nc bnc" id="L112" title="All 2 branches missed.">        message.addAllAgents(msg.getAgentsList() == null ? new ArrayList&lt;&gt;() : msg.getAgentsList());</span>
+<span class="nc" id="L113">        System.out.println(message.toString());</span>
+<span class="nc" id="L114">        byte[] bytes = message.build().toByteArray();</span>
+<span class="nc" id="L115">        byteOut.write(bytes);</span>
+        //networkSerializedWriter.writeObject(msg);
+<span class="nc" id="L117">    }</span>
+    
+    /**
+     * Sets the name of the handle on the connection
+     * @param handle takes a string name and updates object handle variable
+     */
+    public void setHandle(String handle)
+    {
+<span class="nc" id="L125">        this.handle = handle;</span>
+<span class="nc" id="L126">    }</span>
+    
+    /**
+     * Gets the handle of the object
+     * @return String name of the objects handle
+     */
+    public String getHandle()
+    {
+<span class="nc" id="L134">        return handle;</span>
+    }
+    
+    /**
+     * Receives a message from the network.
+     * Receives a byte array, parses it into a MsgDataProtos and then creates a MsgData, puts all the information in it and returns it
+     * @return the message data received in a readable object
+     * @throws IOException if any errors
+     * @throws ClassNotFoundException if any issues with the method type
+     */
+    public MsgData receiveMessage() throws IOException, ClassNotFoundException
+    {
+<span class="nc" id="L146">        MsgData msg = null;</span>
+        //int length = byteIn.readInt(); 
+        //System.out.println(length);
+<span class="nc" id="L149">        ByteArrayOutputStream baos = new ByteArrayOutputStream();</span>
+<span class="nc" id="L150">        byte buffer[] = new byte[1024];</span>
+<span class="nc" id="L151">        baos.write(buffer, 0 , byteIn.read(buffer));</span>
+<span class="nc" id="L152">        byte result[] = baos.toByteArray();</span>
+        /*
+        if (length &gt; 0) 
+        {
+            bytes = new byte[length];
+            byteIn.readFully(bytes, 0, bytes.length); 
+        }
+        */
+<span class="nc" id="L160">        MsgDataProtos.MsgData message = MsgDataProtos.MsgData.parseFrom(result);</span>
+<span class="nc" id="L161">        System.out.println(message.getType());</span>
+<span class="nc" id="L162">        MsgDataProtos.MsgData.Type newType = message.getType();</span>
+<span class="nc bnc" id="L163" title="All 7 branches missed.">        switch(newType)</span>
+        {
+            case ADD:
+<span class="nc" id="L166">                msg = new MsgData(&quot;&quot;, MessageType.ADD);</span>
+<span class="nc" id="L167">                break;</span>
+            case REMOVE:
+<span class="nc" id="L169">                msg = new MsgData(&quot;&quot;, MessageType.REMOVE);</span>
+<span class="nc" id="L170">                break;</span>
+            case LIST:
+<span class="nc" id="L172">                msg = new MsgData(&quot;&quot;, MessageType.LIST);</span>
+<span class="nc" id="L173">                break;</span>
+            case HANDLE:
+<span class="nc" id="L175">                msg = new MsgData(&quot;&quot;, MessageType.HANDLE);</span>
+<span class="nc" id="L176">                break;  </span>
+            case USER:
+<span class="nc" id="L178">                msg = new MsgData(&quot;&quot;, MessageType.USER);</span>
+<span class="nc" id="L179">                break;    </span>
+            case RETURN:
+<span class="nc" id="L181">                msg = new MsgData(&quot;&quot;, MessageType.RETURN);</span>
+<span class="nc" id="L182">                break;</span>
+            default:
+<span class="nc" id="L184">                msg = new MsgData(&quot;&quot;, MessageType.USER);</span>
+        }  
+<span class="nc" id="L186">        msg.setHandle(message.getHandle());</span>
+<span class="nc" id="L187">        msg.setAgentsList(message.getAgentsList());</span>
+<span class="nc" id="L188">        msg.setBody(message.getBody());</span>
+<span class="nc" id="L189">        msg.setId(message.getMsgId());</span>
+<span class="nc" id="L190">        msg.setMsgId(message.getMsgId());</span>
+<span class="nc" id="L191">        msg.setRecipient(message.getRecipient());</span>
+<span class="nc" id="L192">        msg.setSender(message.getSender());</span>
+<span class="nc" id="L193">        return msg;</span>
+    }
+    
+    /**
+     * Shows if there is a message in the queue
+     * @return true or false if available
+     * @throws IOException for any errors
+     */
+    public boolean hasMessageInQueue() throws IOException
+    {
+<span class="nc bnc" id="L203" title="All 2 branches missed.">        return networkStream.available() &gt; 0;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

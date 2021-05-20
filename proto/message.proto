@@ -1,0 +1,26 @@
+syntax = "proto2";
+
+package tutorial;
+
+option java_package = "com.example.tutorial";
+option java_outer_classname = "MsgDataProtos";
+
+message MsgData {
+  optional string handle = 1;
+  optional int32 msgId = 2;
+  optional string sender = 3;
+  optional string recipient = 4;
+  optional string body = 5;
+
+  enum Type {
+    USER = 0;
+    ADD = 1;
+    REMOVE = 2;
+    HANDLE = 3;
+    LIST = 4;
+    RETURN = 5;
+  }
+
+  optional Type type = 6;
+  repeated string agents = 7;
+}

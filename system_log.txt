@@ -1,0 +1,10 @@
+PORTAL added to: ¶»¤r1	Name: ¶»¤p1	Time Added: ¶»¤2020-01-05T18:05:53.817
+USER added to: ¶»¤p1	Name: ¶»¤u1	Time Added: ¶»¤2020-01-05T18:05:53.874
+PORTAL added to: ¶»¤r1	Name: ¶»¤p2	Time Added: ¶»¤2020-01-05T18:05:53.874
+USER added to: ¶»¤p2	Name: ¶»¤u3	Time Added: ¶»¤2020-01-05T18:05:53.875
+USER added to: ¶»¤p2	Name: ¶»¤u4	Time Added: ¶»¤2020-01-05T18:05:53.875
+New connection between: ¶»¤r1	and: ¶»¤r2	Time: ¶»¤2020-01-05T18:05:54.408
+USER added to: ¶»¤p1	Name: ¶»¤u2	Time Added: ¶»¤2020-01-05T18:05:55.593
+AGENT added to: ¶»¤r2	Name: ¶»¤u7	Time Added: ¶»¤2020-01-05T18:05:55.593
+AGENT added to: ¶»¤r2	Name: ¶»¤u2	Time Added: ¶»¤2020-01-05T18:05:55.595
+USER removed by: ¶»¤r1	Name: ¶»¤u1	Time Removed: ¶»¤2020-01-05T18:05:56.593
